@@ -66,15 +66,13 @@ export default defineConfig({
                     label: '[ri:mail-line] Contact & Support',
                     link: '/contact/',
                 },
-                // --- THIS IS THE NEW SECTION YOU NEED TO ADD ---
 				{
                     label: '[ri:question-answer-line] FAQ',
                     link: '/faq/',
                 },
-                // ----------------------------------------------
             ],
 
-           customCss: ['/src/styles/custom.css'],
+           customCss: ['./src/styles/custom.css'],
             
 			plugins: [
                 ion()

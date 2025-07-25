@@ -24,3 +24,25 @@ img[src*="Illustration2.png"] {
   -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
   mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
 }
+
+
+/* src/styles/custom.css */
+
+/* Style for the contributor avatar image */
+.contributor-avatar {
+	border-radius: 50%; /* Makes the image a circle */
+	object-fit: cover; /* Prevents the image from being stretched */
+	margin-bottom: 1rem; /* Adds some space below the avatar */
+    aspect-ratio: 1 / 1; /* Ensures the element is a square for a perfect circle */
+}
+
+/* Style for the card containing the contributor */
+.contributor-card-link .sl-card {
+    text-align: center; /* Centers the text and avatar inside the card */
+    padding-top: 2rem;
+}
+
+/* Removes the default underline from the card link */
+.contributor-card-link {
+    text-decoration: none;
+}

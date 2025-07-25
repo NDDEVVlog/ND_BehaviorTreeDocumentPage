@@ -7,13 +7,25 @@ import { ion } from 'starlight-ion-theme';
 
 // https://astro.build/config
 export default defineConfig({
+    
 	site: 'https://NDDEVVlog.github.io',
 	base: '/ND_BehaviorTreeDocumentPage',
 	integrations: [
 		starlight({
 			title: 'ND_BehaviorTree Documents',
 			description: 'The official documentation for my Behavior Tree System.',
-			
+			head: [
+				{
+					tag: 'link',
+					attrs: {
+						rel: 'icon',
+						href: 'ND_BehaviorTreeDocumentPage/public/nd_bevtree_logo.svg',
+						type: 'image/svg+xml',
+					},
+				},
+			],
+
+
 			social: [
 				{ icon: 'discord', label: 'Discord', href: 'https://discord.gg/FDgPx6rJVc' },
 				{ icon: 'youtube', label: 'Youtube', href: 'youtube.com/@nddevgame?sub_confirmation=1' },

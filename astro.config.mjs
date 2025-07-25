@@ -14,16 +14,6 @@ export default defineConfig({
 		starlight({
 			title: 'ND_BehaviorTree Documents',
 			description: 'The official documentation for my Behavior Tree System.',
-			head: [
-				{
-					tag: 'link',
-					attrs: {
-						rel: 'icon',
-						href: 'ND_BehaviorTreeDocumentPage/public/nd_bevtree_logo.svg',
-						type: 'image/svg+xml',
-					},
-				},
-			],
 
 
 			social: [

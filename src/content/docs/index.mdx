@@ -17,39 +17,67 @@ hero:
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
-import ndDevAvatar from '../../assets/contributor/nd-dev.png';
-import soraAvatar from '../../assets/contributor/sora.png';
-import sakiAvatar from '../../assets/contributor/sakiAvatar.png';
+// --- 1. THE IMPORT STATEMENTS ARE NOW REMOVED ---
 
 
 ## Next steps
 
-{/* ... (rest of the file is the same) ... */}
+{/* ... Next steps grid remains the same ... */}
+<CardGrid stagger>
+	<Card title="Install the Package" icon="puzzle">
+		Follow the [installation guide](/getting-started/installation/) to add ND_BehaviorTree to your project.
+	</Card>
+	<Card title="Create a Custom Node" icon="add-document">
+		Learn the most important skill: [creating your own action nodes](/tutorials/custom-action-node/).
+	</Card>
+	<Card title="Explore Built-in Nodes" icon="open-book">
+		See the full list of nodes included in the system to speed up your development.
+	</Card>
+	<Card title="Get in Touch" icon="email">
+		Have a question or want to join the community? [Find the best way to reach out](/contact/).
+	</Card>
+</CardGrid>
+
+
+{/* src/content/docs/index.mdx */}
 
 ## Our Contributors
 
 A huge thank you to all the people who have contributed to the project!
 
 <CardGrid>
-    {/* Contributor 1 */}
+    {/* Contributor 1: NDDEVGAME */}
     <a href="https://github.com/NDDEVVlog" target="_blank" class="contributor-card-link">
         <Card title="NDDEVGAME" icon="github">
-            <img src={ndDevAvatar.src} width="80" height="80" alt="Avatar of ND DEV" class="contributor-avatar" />
+            {/* REPLACE THIS SRC WITH YOUR CORRECT RAW URL */}
+            <img 
+              src="https://avatars.githubusercontent.com/u/111946313?v=4" 
+              width="80" height="80" alt="Avatar of ND DEV" class="contributor-avatar" 
+            />
             For creating and maintaining the project.
         </Card>
     </a>
-    {/* Contributor 2 - THE FIX IS HERE */}
+    
+    {/* Contributor 2: SORATHEDEV */}
     <a href="https://www.youtube.com/@sorathedev6739?sub_confirmation=1" target="_blank" class="contributor-card-link">
         <Card title="SORATHEDEV" icon="youtube">
-            <img src={soraAvatar.src} width="80" height="80" alt="Avatar of Sora" class="contributor-avatar" />
+            {/* REPLACE THIS SRC WITH YOUR CORRECT RAW URL */}
+            <img 
+              src="https://yt3.googleusercontent.com/aB12z1ljA_mgh8God8jLt8VZ6W_SCBcxZ4_0ctOogUyaE4WgPXHo2BjgV9ZbV6frEppP6QCS=s160-c-k-c0x00ffffff-no-rj" 
+              width="80" height="80" alt="Avatar of Sora" class="contributor-avatar" 
+            />
             For giving idea to make it better and being a duck.
         </Card>
     </a>
 
-    {/* Contributor 3 */}
+    {/* Contributor 3: Saki Toshimiya */}
     <a href="https://github.com/Sakitoshimiya" target="_blank" class="contributor-card-link">
         <Card title="Saki Toshimiya" icon="github">
-            <img src={sakiAvatar.src} width="80" height="80" alt="Avatar of Saki" class="contributor-avatar" />
+            {/* REPLACE THIS SRC WITH YOUR CORRECT RAW URL */}
+            <img 
+              src="https://avatars.githubusercontent.com/u/166310923?v=4" 
+              width="80" height="80" alt="Avatar of Saki" class="contributor-avatar" 
+            />
             For being such a great mod.
         </Card>
     </a>

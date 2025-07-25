@@ -3,7 +3,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
-// We DO NOT need 'astro-icon' for the sidebar icons, so it has been removed.
 import { ion } from 'starlight-ion-theme';
 
 // https://astro.build/config
@@ -27,27 +26,16 @@ export default defineConfig({
 				vi: { label: 'Tiếng Việt', lang: 'vi' },
 			},
 
-            // --- Your sidebar is perfect, no changes needed here ---
 			sidebar: [
                 {
                     label: '[mdi:update] Update Info',
-                    items:[
-                        {
-                            label:'[fe:loop] ChangeLog',
-                            link: '/update-info/change-log/',
-                            badge: { text: 'New', variant: 'success' }
-                        },
-                    ],
+                    items:[{ label:'[fe:loop] ChangeLog', link: '/update-info/change-log/', badge: { text: 'New', variant: 'success' }}],
                 },
                 {
                     label : '[ri:flag-line] Start Here',
                     items: [
                         { label: 'Introduction', link: '/introduction/' },
-                        { 
-                            label: 'Installation', 
-                            link: '/getting-started/installation/',
-                            badge: { text: 'Start', variant: 'tip' }
-                        },
+                        { label: 'Installation', link: '/getting-started/installation/', badge: { text: 'Start', variant: 'tip' }},
                         { label: ' Core Concepts', link: '/getting-started/core-concepts/' },
                     ],
                 },
@@ -71,18 +59,23 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: '[ph:code-bold] Reference', // I used your new icon here!
+                    label: '[ph:code-bold] Reference',
                     autogenerate: { directory: 'reference' },
                 },
 				{
                     label: '[ri:mail-line] Contact & Support',
                     link: '/contact/',
                 },
+                // --- THIS IS THE NEW SECTION YOU NEED TO ADD ---
+				{
+                    label: '[ri:question-answer-line] FAQ',
+                    link: '/faq/',
+                },
+                // ----------------------------------------------
             ],
 
            customCss: ['/src/styles/custom.css'],
             
-            // This is the only thing needed to enable the icons.
 			plugins: [
                 ion()
             ],

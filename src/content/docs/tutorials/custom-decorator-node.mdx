@@ -1,0 +1,95 @@
+---
+title: 'Creating a Custom Decorator'
+description: 'Learn how to create a custom Decorator node to modify the behavior of its child.'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## What is a Decorator?
+
+In a Behavior Tree, **Decorator** nodes are "wrappers". They take a single child node and alter its behavior. They are a fundamental part of the tree's execution flow and are used to add conditions, repeat actions, or change the result of a node.
+
+Think of them like this:
+- If an **Action** node is a *verb* (like "Run"),
+- A **Decorator** is an *adverb* or a *condition* (like "Run *until* tired" or "Run *if* safe").
+
+Common examples include:
+- **Inverter:** Flips a `Success` result to `Failure` and vice-versa.
+- **Repeater:** Executes its child a specific number of times.
+- **Cooldown:** Prevents its child from running again for a set amount of time.
+
+## The Base Class: `DecoratorNode`
+
+All custom decorators must inherit from the `DecoratorNode` class. This class provides the basic structure, including a single `child` property.
+
+```csharp
+// From DecoratorNode.cs
+public abstract class DecoratorNode : AuxiliaryNode
+{
+    // It inherits the 'child' property from AuxiliaryNode.
+    // public Node child;
+}
+```
+
+## Example: Creating an Inverter Node
+
+Let's create one of the most common decorators: the Inverter. This node will execute its child and then simply invert the result.
+
+### Create the Script
+
+Create a new C# script named `InverterNode.cs`.
+
+### Add the Code
+
+Paste the following code into the script.
+
+```csharp
+using ND_BehaviorTree;
+
+// The NodeInfo attribute makes it show up in the editor's search menu.
+[NodeInfo("Inverter", "Decorator/Inverter", iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/Invert.png")]
+public class InverterNode : DecoratorNode
+{
+    // OnEnter and OnExit can be left empty if no special setup/cleanup is needed.
+    protected override void OnEnter() { }
+    protected override void OnExit() { }
+
+    // This is where the core logic lives.
+    protected override Status OnProcess()
+    {
+        // If there's no child, we can't do anything.
+        if (child == null)
+        {
+            return Status.Success; // Or Failure, depending on desired default behavior.
+        }
+
+        // Process the child node to get its status.
+        switch (child.Process())
+        {
+            case Status.Running:
+                // If the child is still running, we pass that status up.
+                // The inversion only happens when it's finished.
+                return Status.Running;
+
+            case Status.Success:
+                // The child succeeded, so we return Failure.
+                return Status.Failure;
+
+            case Status.Failure:
+                // The child failed, so we return Success.
+                return Status.Success;
+        }
+
+        // This line should technically never be reached.
+        return Status.Failure;
+    }
+}
+```
+
+### Compile and Use
+
+After Unity compiles the new script, you can find your "Inverter" node in the Behavior Tree editor under the "Decorator" category. Add it to your tree, and connect any other node as its child. You'll see that the result is now flipped!
+
+<Aside type="tip">
+**Key Takeaway:** The power of a Decorator is in its `OnProcess` method. You execute `child.Process()` and then decide what to do with the result before returning a new status.
+</Aside>

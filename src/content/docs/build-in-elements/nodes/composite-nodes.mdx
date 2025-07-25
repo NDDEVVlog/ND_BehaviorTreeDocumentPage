@@ -1,0 +1,68 @@
+---
+title: 'Composite Nodes'
+description: 'Nodes that have one or more children and control how they are executed.'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+**Composite** nodes are the branches of your tree. They define the logical flow of behavior by controlling the execution of their child nodes.
+
+## Sequence
+
+A **Sequence** node executes its children in order, from top to bottom. It behaves like a logical **AND** operator.
+
+-   It stops and returns `Failure` as soon as one of its children fails.
+-   It only returns `Success` if **all** of its children succeed.
+-   It returns `Running` if a child is currently running.
+
+**Use Case:** A series of steps that must be completed in order, like "Go to door, unlock door, open door."
+
+## Selector
+
+A **Selector** node executes its children in order, from top to bottom, until one of them succeeds. It behaves like a logical **OR** operator.
+
+-   It stops and returns `Success` as soon as one of its children succeeds.
+-   It only returns `Failure` if **all** of its children fail.
+-   It returns `Running` if a child is currently running.
+
+**Use Case:** Trying a list of possible actions, like "Try to attack with a sword, and if that fails, try to attack with magic, and if that fails, run away."
+
+## Parallel
+
+A **Parallel** node executes all of its children simultaneously. Its own success or failure is determined by its configured policies.
+
+-   **Behavior:** All children are ticked on every frame that the Parallel node is active.
+-   **Properties:**
+    -   `Success Policy`:
+        -   `Require One`: The node succeeds as soon as **one** child succeeds.
+        -   `Require All`: The node succeeds only when **all** children have succeeded.
+    -   `Failure Policy`:
+        -   `Require One`: The node fails as soon as **one** child fails.
+        -   `Require All`: The node fails only when **all** children have failed.
+
+**Use Case:** Performing an action while checking a condition, like "Move towards the player" (Action) while "Constantly look at the player" (Action).
+
+## Random Selector
+
+This node randomly picks **one** of its children and executes it.
+
+-   **Behavior:** On its first run, it selects a single child at random. It then processes only that child. The status returned by that child (`Success`, `Failure`, or `Running`) becomes the status of the Random Selector.
+-   It does **not** try another child if the selected one fails. It's a one-time random choice per activation.
+
+**Use Case:** Adding unpredictability to an AI, like "Randomly choose between taunting, strafing left, or strafing right."
+
+## Random Rate Selector
+
+This node is a weighted random selector. It randomly picks one child to execute, but the chance of each child being picked is influenced by its `priority` value.
+
+-   **Behavior:** Works like the Random Selector, but the choice is weighted instead of uniform.
+-   **Properties:**
+    -   `Weighting Mode`:
+        -   `Lower Is Better`: A child with a lower `priority` value has a higher chance of being selected. (e.g., Priority 1 is more likely than Priority 10).
+        -   `Higher Is Better`: A child with a higher `priority` value has a higher chance of being selected. (e.g., Priority 10 is more likely than Priority 1).
+
+**Use Case:** An enemy boss choosing an attack, where "basic punch" has a high priority (low chance) and "super laser" has a low priority (high chance), or vice-versa depending on the mode.
+
+<Aside type="tip">
+**Choosing the Right Composite:** Start with `Sequence` for step-by-step logic and `Selector` for making choices. Use `Parallel` for simultaneous actions and `Random` variants to add unpredictability.
+</Aside>

@@ -1,19 +1,21 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
+title: Welcome to ND_BehaviorTree
+description: A powerful and intuitive Behavior Tree system for Unity.
 template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
+  tagline: Create complex and modular AI with ease. Get started in minutes!
   image:
-    file: ../../assets/houston.webp
+    file: ../../assets/Illustration2.png
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    # Button 1: The main download call-to-action
+    - text: Download Latest (.unitypackage)
+      link: https://github.com/NDDEVVlog/ND_BehaviorTree/releases/tag/ND_BehaviorTreeVer1.0
+      icon: down-arrow
+      variant: primary
+    # Button 2: The primary guide for new users
+    - text: Get Started Guide
+      link: /getting-started/installation/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
-      icon: external
-      variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
@@ -21,16 +23,16 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 ## Next steps
 
 <CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
+	<Card title="Install the Package" icon="puzzle">
+		Follow the <a href="/getting-started/installation/">installation guide</a> to add ND_BehaviorTree to your project.
 	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
+	<Card title="Create a Custom Node" icon="add-document">
+		Learn the most important skill: <a href="/tutorials/custom-action-node/">creating your own action nodes</a>.
 	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
+	<Card title="Explore Built-in Nodes" icon="open-book">
+		See the full list of nodes included in the system to speed up your development.
 	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
+	<Card title="Get in Touch" icon="email">
+		Have a question or want to join the community? <a href="/contact/">Find the best way to reach out</a>.
 	</Card>
 </CardGrid>

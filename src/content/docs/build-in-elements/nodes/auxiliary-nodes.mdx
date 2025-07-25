@@ -1,0 +1,47 @@
+---
+title: 'Auxiliary Nodes'
+description: 'Learn about the two types of helper nodes: Decorators and Services.'
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+**Auxiliary** nodes are "helper" nodes that attach to other nodes to modify or assist their behavior. They are the base for **Decorators** and **Services**. While they share a common technical foundation (inheriting from `AuxiliaryNode`), their roles in the tree are very different.
+
+## Decorators vs. Services
+
+This is one of the most important concepts to understand.
+
+<Tabs>
+<TabItem label="Decorators">
+**Decorators wrap a single child and modify its behavior.** They are part of the direct execution flow of the tree.
+
+-   **Role:** Control Flow. They can stop a branch from running, change its result, or make it run multiple times.
+-   **Execution:** Runs in-line, as part of the parent-to-child sequence.
+-   **Analogy:** An adjective or adverb. If an Action is "Attack", a Decorator can make it "Attack *only if* health is low."
+
+</TabItem>
+<TabItem label="Services">
+**Services attach to Composite nodes and run in the background.** They are *not* part of the direct execution flow.
+
+-   **Role:** Background Tasks & Observation. They are used for periodic checks and updating the Blackboard.
+-   **Execution:** Runs in parallel to the composite's children, on a timer.
+-   **Analogy:** A background process or a sensor. It constantly feeds the AI's "brain" (the Blackboard) with information about the world.
+
+</TabItem>
+</Tabs>
+
+---
+
+## Key Differences at a Glance
+
+| Feature        | Decorator                                      | Service                                         |
+| -------------- | ---------------------------------------------- | ----------------------------------------------- |
+| **Purpose**    | Modify control flow                            | Perform background tasks / update Blackboard    |
+| **Execution**  | In-line, sequential                            | Parallel, on a timer                            |
+| **Parenting**  | Is a normal child node                         | Attached to a `CompositeNode`                   |
+| **Return Value** | Crucial, affects the parent's logic          | Ignored, always returns `Success`               |
+| **Common Use** | Inverter, Repeater, Cooldown                   | Check distance, find target, monitor stats      |
+
+<Aside type="tip">
+**Rule of Thumb:** If you need to make a decision or change the result of a node, use a **Decorator**. If you need to periodically check something and update the AI's knowledge, use a **Service**.
+</Aside>

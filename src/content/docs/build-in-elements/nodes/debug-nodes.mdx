@@ -1,0 +1,35 @@
+---
+title: 'Debug Nodes'
+description: 'Nodes designed to help with debugging your Behavior Trees.'
+---
+
+Debug nodes don't affect the game logic but are invaluable for understanding what your Behavior Tree is doing at runtime.
+
+## Log Node
+
+Prints a message to the Unity Console. This is useful for tracing the execution path of your tree.
+
+-   **Behavior:** Prints the configured message and immediately returns `Success`.
+-   **Properties:**
+    -   `Message`: The string to print to the console.
+    -   `Log Level`: The type of log (Info, Warning, or Error).
+
+![An example of a Log Node in a tree](https://via.placeholder.com/400x150.png/1e222e/ffffff?text=Sequence+->+Log+Node)
+
+## Wait Node
+
+Pauses the execution of its branch for a specified duration. It's perfect for adding delays or pacing to an AI's behavior.
+
+-   **Behavior:** Returns `Running` for the specified `Duration`. Once the time has elapsed, it returns `Success`.
+-   **Properties:**
+    -   `Duration`: The time to wait in seconds.
+-   **Visuals:** While running, this node displays a progress bar showing the elapsed time, thanks to the `[NodeProgressBar]` attribute.
+
+![An example of a Wait Node in a tree](https://via.placeholder.com/400x150.png/1e222e/ffffff?text=Sequence+->+Wait+Node)
+
+## Debug Break Node
+
+Pauses the Unity Editor when executed. This is extremely powerful for freezing the game at a specific point in the tree's logic to inspect the state of your game objects, blackboard, and agent.
+
+-   **Behavior:** Calls `Debug.Break()` to pause the editor and then returns `Success`.
+-   **Properties:** None.

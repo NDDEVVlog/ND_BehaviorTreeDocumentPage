@@ -1,0 +1,69 @@
+---
+title: 'Action Nodes'
+description: 'Action nodes are the leaves of the tree where game-specific logic is executed.'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+**Action** nodes are the "leaves" of the Behavior Tree. They are where the work gets done. An Action node represents a specific, concrete action your game character can perform. They cannot have any children.
+
+They are the "verbs" of your AI's brain:
+-   `Move To Target`
+-   `Play Animation`
+-   `Attack Enemy`
+-   `Find Cover`
+-   `Say Dialogue Line`
+
+## The Life Cycle of an Action
+
+When an Action node is processed, it must return one of three statuses, which dictates the flow of the tree.
+
+-   `Success`: The action was completed successfully. (e.g., "The agent has arrived at its destination.")
+-   `Failure`: The action could not be completed. (e.g., "A path to the destination could not be found.")
+-   `Running`: The action is in progress and needs more time. The tree will execute this same node again on the next update. (e.g., "The agent is still moving along the path.")
+
+## Creating a Custom Action Node
+
+All of your game-specific logic will live inside custom Action nodes. You create them by inheriting from the `ActionNode` base class.
+
+See the [Creating a Custom Action Node](/tutorials/custom-action-node/) tutorial for a detailed walkthrough.
+
+Here is the basic template for any new Action node:
+
+```csharp
+using ND_BehaviorTree;
+using UnityEngine;
+
+// The NodeInfo attribute adds it to the editor's node creation menu.
+[NodeInfo("My Custom Action", "Action/MyCustomAction")]
+public class MyCustomActionNode : ActionNode
+{
+    // OnEnter is called once when the node is first executed.
+    // Use it for initialization.
+    protected override void OnEnter()
+    {
+        Debug.Log("Starting my custom action!");
+    }
+
+    // OnProcess is called every frame as long as the node returns Running.
+    // This is where the main logic lives.
+    protected override Status OnProcess()
+    {
+        // ... do some work ...
+        
+        // Return Success, Failure, or Running based on the outcome.
+        return Status.Success;
+    }
+
+    // OnExit is called once when the node stops running (either by succeeding or failing).
+    // Use it for cleanup.
+    protected override void OnExit()
+    {
+        Debug.Log("Finished my custom action!");
+    }
+}
+```
+
+<Aside type="note">
+Action nodes are the bridge between the abstract logic of the Behavior Tree and the concrete functionality of your game engine and code.
+</Aside>

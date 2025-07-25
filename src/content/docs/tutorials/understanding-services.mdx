@@ -1,0 +1,82 @@
+---
+title: 'Understanding Services'
+description: 'Learn how Service nodes work for background tasks and periodic checks.'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## What is a Service?
+
+A **Service** is a special type of node that runs in the background on a timer. Unlike Actions or Decorators, it is **not** part of the main execution flow of the tree.
+
+Services are attached to **Composite Nodes** (`Sequence`, `Selector`, etc.). As long as the parent composite node is active (i.e., its branch is being executed), the service will "tick" and perform its logic periodically.
+
+**Use services for:**
+- Periodically checking the environment (e.g., "Is the player in attack range?").
+- Updating values on the **Blackboard** (e.g., "Set `isTargetVisible` to true/false").
+- Monitoring an agent's state (e.g., "Decrease hunger level over time").
+
+<Aside type="danger">
+**Important:** Services should **never** be used for direct control flow. They are for observation and data updates only. Their return value is ignored by the parent composite.
+</Aside>
+
+## How Services Work
+
+- **Attachment:** You attach a Service to a `CompositeNode` in the editor.
+- **Activation:** The service becomes active when its parent `CompositeNode` is first executed.
+- **Ticking:** While the composite is active, its `TickServices()` method is called on every `Update`. The service checks internally if enough time has passed since its last execution based on its `interval`.
+- **Logic:** If the timer condition is met, the service's `OnTick()` method is executed.
+
+The `ServiceNode.cs` script manages this timing logic for you. You only need to care about the properties and the `OnTick()` method.
+
+- `interval`: The time in seconds between each tick.
+- `runOnEnter`: If true, the service will execute its `OnTick()` method immediately when it becomes active, without waiting for the first interval.
+
+## Example: A "Find Target" Service
+
+Let's create a service that periodically scans for a target with a "Player" tag and stores it on the blackboard.
+
+1.  **Create the Script:** Create a new C# script named `FindPlayerTargetService.cs`.
+
+2.  **Add the Code:**
+
+    ```csharp
+    using UnityEngine;
+    using ND_BehaviorTree;
+
+    // isChildOnly = true hides it from the main node menu, as it can only be attached.
+    [NodeInfo("Find Player Target", "Service/FindPlayerTarget", isChildOnly: true)]
+    public class FindPlayerTargetService : ServiceNode
+    {
+        [Tooltip("The tag to search for.")]
+        public string targetTag = "Player";
+
+        [Tooltip("The blackboard key to store the found target in.")]
+        [ExposeProperty]
+        public string targetKey = "Target";
+
+        // OnTick is the main logic method for a Service.
+        protected override void OnTick()
+        {
+            if (blackboard == null) return;
+
+            // Find the closest game object with the specified tag.
+            GameObject targetObject = GameObject.FindGameObjectWithTag(targetTag);
+            
+            // Set the value on the blackboard. This will either update the existing
+            // entry or do nothing if the key doesn't exist.
+            // Using SetValueObject is flexible for different key types.
+            blackboard.SetValueObject(targetKey, targetObject);
+        }
+    }
+    ```
+    
+3.  **Compile and Use:**
+    - Go to your Behavior Tree editor.
+    - Right-click on a `Sequence` or `Selector` node and choose `Add Service -> Service/FindPlayerTarget`.
+    - Configure the `targetKey` property on the service to match a `GameObject` key on your blackboard.
+    - Now, whenever this part of the tree is active, the service will periodically scan for the player and keep the blackboard updated. Other nodes can then read this `Target` key to make decisions.
+
+<Aside type="note">
+Services are the "eyes and ears" of your AI. They keep the blackboard, the AI's "brain", updated with fresh information from the game world.
+</Aside>

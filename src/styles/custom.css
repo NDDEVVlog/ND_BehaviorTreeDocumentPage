@@ -1,0 +1,26 @@
+/* src/styles/custom.css */
+
+/* Target the container for the hero image */
+.hero .image {
+  /* 1. This still makes the image bigger. You can adjust the value. */
+  max-width: 150rem;
+
+  /* 
+     2. This creates the gradient fade effect at the bottom.
+     It applies a "mask" that is a linear gradient.
+     - The gradient goes from black (fully visible) to transparent (fully faded).
+     - 'black 60%' means the image is solid from the top down to 60% of its height.
+     - 'transparent 100%' means the fade finishes at the very bottom.
+  */
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+img[src*="Illustration2.png"] {
+  max-width: 750px;
+  width: 100%;
+  height: auto;
+
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}

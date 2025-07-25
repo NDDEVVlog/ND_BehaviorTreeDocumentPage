@@ -60,17 +60,16 @@ Thank you!
 2. Navigate to `Create > ND_BehaviorTree > Blackboard`.
 3. Name your new asset (e.g., `Enemy_Blackboard`).
 
-![Create Blackboard](/images/CreateBlackboard.png)
-
+![Create Blackboard](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/CreateBlackboard.png)
 ### Step 3: Add Keys to the Blackboard
 
 Select the Blackboard then click `Add New Key by Type` to create and add key into the Blackboard
 
-![AddKeyToBlackboard](/images/AddKeyToBlackboard.png)
+![AddKeyToBlackboard](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/AddKeyToBlackboard.png)
 
 You can also create and add a key directly to the Blackboard attached to the Behavior Tree's editor.
 
-![AddKeyToBlackboard](/images/CreateBlackboard1.PNG)
+![Addjust Key in BT](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/CreateBlackboard1.PNG)
 
 ## 3. Using the Blackboard at Runtime
 

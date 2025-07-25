@@ -8,6 +8,8 @@ import { ion } from 'starlight-ion-theme';
 
 // https://astro.build/config
 export default defineConfig({
+	site: 'https://NDDEVVlog.github.io',
+	base: '/ND_BehaviorTreeDocumentPage',
 	integrations: [
 		starlight({
 			title: 'ND_BehaviorTree Documents',

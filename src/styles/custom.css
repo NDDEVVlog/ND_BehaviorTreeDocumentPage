@@ -29,24 +29,47 @@ img[src*="Illustration2.png"] {
 /* src/styles/custom.css */
 
 /* Style for the contributor avatar image */
+/* src/styles/custom.css */
+
+/*
+  Creates a flex container to place the avatar and text side-by-side.
+*/
+.contributor-body {
+  display: flex;
+  align-items: center; /* Vertically aligns the avatar and text */
+  gap: 1rem; /* Adds a nice space between the avatar and the text */
+  padding-top: 0.5rem; /* Adds a little space below the card title */
+}
+
+/*
+  Styles the contributor's avatar image.
+*/
 .contributor-avatar {
-	border-radius: 50%; /* Makes the image a circle */
-	object-fit: cover; /* Prevents the image from being stretched */
-	margin-bottom: 1rem; /* Adds some space below the avatar */
-    aspect-ratio: 1 / 1; /* Ensures the element is a square for a perfect circle */
+  /* You can adjust the size here. 60px is a good starting point. */
+  width: 60px;
+  height: 60px;
+  border-radius: 50%; /* Makes the image a perfect circle */
+  object-fit: cover; /* Prevents the image from stretching if it's not square */
+  flex-shrink: 0; /* Prevents the image from shrinking on small screens */
+  margin: 0; /* Removes any default margins */
 }
 
-/* Style for the card containing the contributor */
-.contributor-card-link .sl-card {
-    text-align: center; /* Centers the text and avatar inside the card */
-    padding-top: 2rem;
+/*
+  Styles the description text next to the avatar.
+*/
+.contributor-description {
+  margin: 0; /* Removes default paragraph margins */
+  font-style: italic;
+  font-size: var(--sl-text-sm); /* Use Starlight's theme variable for font size */
+  color: var(--sl-color-gray-3); /* Use Starlight's theme variable for a subtle color */
 }
 
-/* Removes the default underline from the card link */
+/*
+  (Optional but recommended) Removes the underline from the link that wraps the card.
+*/
 .contributor-card-link {
-    text-decoration: none;
+  text-decoration: none;
 }
-
 
 .sl-sidebar h2 {
   color: #ffffff; /* A nice green color */

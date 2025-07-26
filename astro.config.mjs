@@ -13,8 +13,8 @@ export default defineConfig({
             description: 'The official documentation for my Behavior Tree System.',
             social: [
                 { icon: 'discord', label: 'Discord', href: 'https://discord.gg/FDgPx6rJVc' },
-                { icon: 'youtube', label: 'Youtube', href: 'youtube.com/@nddevgame?sub_confirmation=1' },
-                { icon: 'facebook', label: 'Facebook', href: 'facebook.com/profile.php?id=100090693452227' },
+                { icon: 'youtube', label: 'Youtube', href: 'https://youtube.com/@nddevgame?sub_confirmation=1' },
+                { icon: 'facebook', label: 'Facebook', href: 'https://facebook.com/profile.php?id=100090693452227' },
                 { icon: 'github', label: 'GitHub', href: 'https://github.com/NDDEVVlog/ND_BehaviorTree' }
             ],
             locales: {
@@ -23,11 +23,11 @@ export default defineConfig({
             },
             sidebar: [
                 {
-                    label: 'Update Info',
+                    label: '[mdi:update] Update Info',
                     items: [{ label: '[fe:loop] ChangeLog', link: '/update-info/change-log/', badge: { text: 'New', variant: 'success' } }],
                 },
                 {
-                    label: 'Start Here',
+                    label: '[ri:flag-line] Start Here',
                     items: [
                         { label: 'Introduction', link: '/introduction/' },
                         { label: 'Installation', link: '/getting-started/installation/', badge: { text: 'Start', variant: 'tip' } },
@@ -35,7 +35,7 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: 'Tutorials',
+                    label: '[ri:lightbulb-flash-line] Tutorials',
                     items: [
                         { label: 'Your First Behavior Tree', link: '/tutorials/first-tree/' },
                         { label: 'Basics of a Node', link: '/tutorials/node-basic/' },
@@ -46,7 +46,7 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: 'Built-in Elements',
+                    label: '[lucide:blocks] Built-in Elements',
                     items: [
                         { label: 'Debug Nodes', link: '/build-in-elements/nodes/debug-nodes/' },
                         { label: 'Composite Nodes', link: '/build-in-elements/nodes/composite-nodes/' },
@@ -55,15 +55,20 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: 'Reference',
+                    label: '[ph:code-bold] Reference',
                     autogenerate: { directory: 'reference' },
                 },
+                // --- ADDED NEW PAGE HERE ---
                 {
-                    label: 'Contact & Support',
+                    label: '[ri:award-line] License & Contribution',
+                    link: '/license-contribution/',
+                },
+                {
+                    label: '[ri:mail-line] Contact & Support',
                     link: '/contact/',
                 },
                 {
-                    label: 'FAQ',
+                    label: '[ri:question-answer-line] FAQ',
                     link: '/faq/',
                 },
             ],

@@ -68,7 +68,7 @@ export default defineConfig({
             ],
             customCss: ['./src/styles/custom.css'],
             plugins: [
-               // ion()
+               ion()
             ],
         }),
     ],

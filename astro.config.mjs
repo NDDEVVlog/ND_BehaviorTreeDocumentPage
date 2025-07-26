@@ -23,11 +23,11 @@ export default defineConfig({
             },
             sidebar: [
                 {
-                    label: '[mdi:update] Update Info',
+                    label: 'Update Info',
                     items: [{ label: '[fe:loop] ChangeLog', link: '/update-info/change-log/', badge: { text: 'New', variant: 'success' } }],
                 },
                 {
-                    label: '[ri:flag-line] Start Here',
+                    label: 'Start Here',
                     items: [
                         { label: 'Introduction', link: '/introduction/' },
                         { label: 'Installation', link: '/getting-started/installation/', badge: { text: 'Start', variant: 'tip' } },
@@ -35,17 +35,18 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: '[ri:lightbulb-flash-line] Tutorials',
+                    label: 'Tutorials',
                     items: [
                         { label: 'Your First Behavior Tree', link: '/tutorials/first-tree/' },
-                        { label: 'Using the Blackboard', link: '/tutorials/using-the-blackboard/' },
+                        { label: 'Basics of a Node', link: '/tutorials/node-basic/' },
                         { label: 'Creating a Custom Action Node', link: '/tutorials/custom-action-node/' },
                         { label: 'Creating a Custom Decorator', link: '/tutorials/custom-decorator-node/' },
                         { label: 'Understanding Services', link: '/tutorials/understanding-services/' },
+                        { label: 'Using the Blackboard', link: '/tutorials/using-the-blackboard/' },
                     ],
                 },
                 {
-                    label: '[lucide:blocks] Built-in Elements',
+                    label: 'Built-in Elements',
                     items: [
                         { label: 'Debug Nodes', link: '/build-in-elements/nodes/debug-nodes/' },
                         { label: 'Composite Nodes', link: '/build-in-elements/nodes/composite-nodes/' },
@@ -54,15 +55,15 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: '[ph:code-bold] Reference',
+                    label: 'Reference',
                     autogenerate: { directory: 'reference' },
                 },
                 {
-                    label: '[ri:mail-line] Contact & Support',
+                    label: 'Contact & Support',
                     link: '/contact/',
                 },
                 {
-                    label: '[ri:question-answer-line] FAQ',
+                    label: 'FAQ',
                     link: '/faq/',
                 },
             ],

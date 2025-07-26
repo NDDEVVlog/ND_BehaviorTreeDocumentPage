@@ -46,3 +46,12 @@ img[src*="Illustration2.png"] {
 .contributor-card-link {
     text-decoration: none;
 }
+
+
+.sl-sidebar h2 {
+  color: #ffffff; /* A nice green color */
+
+  /* You can also add other styles here */
+  font-weight: 600; /* Make it a bit bolder */
+  text-transform: uppercase; /* Make it all caps */
+}

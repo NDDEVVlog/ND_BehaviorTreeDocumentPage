@@ -1,0 +1,206 @@
+---
+title: Basics of a Node
+description: Understand the fundamental building block of the ND_BehaviorTree system, the Node class.
+---
+import { Card, CardGrid, Aside, Code } from '@astrojs/starlight/components';
+
+Every element you place in your Behavior Tree graph—from a complex sequence to a simple action—is a **Node**. The `Node` class is the foundational, `abstract` base class from which all other node types are derived. Understanding its structure and lifecycle is key to mastering this system.
+
+Think of it as the `MonoBehaviour` of the Behavior Tree world. You don't use it directly, but you build everything on top of it.
+
+## The Node's Lifecycle
+
+When a Behavior Tree runs, it "ticks" or processes its nodes. Each node follows a specific, predictable lifecycle managed by its `Process()` method.
+
+<CardGrid>
+	<Card title="1. OnEnter()" icon="play-circle">
+		Called **once** when the node is first activated. This is the perfect place for any setup logic, like initializing variables, caching components, or starting a timer.
+	</Card>
+	<Card title="2. OnProcess()" icon="sync">
+		Called **every tick** as long as the node is active (i.e., it previously returned `Status.Running`). This is where the main logic of your node lives. It must return a `Status` to tell the tree what to do next.
+	</Card>
+	<Card title="3. OnExit()" icon="stop-circle">
+		Called **once** when the node stops processing, either because it returned `Status.Success` or `Status.Failure`. Use this for cleanup, like stopping timers or resetting state.
+	</Card>
+</CardGrid>
+
+<Aside>
+The `Process()` method orchestrates this lifecycle. You won't call `OnEnter`, `OnProcess`, or `OnExit` directly; the tree handles this for you. Your job is to fill in the logic for those three methods when creating custom nodes.
+</Aside>
+
+## Execution Status
+
+Every time a node's `OnProcess()` method is called, it must return one of three possible statuses. This status informs its parent node how to proceed.
+
+-   **`Status.Success`**: The node has completed its task successfully.
+-   **`Status.Failure`**: The node failed to complete its task.
+-   **`Status.Running`**: The node is still working and needs more time. The tree will call its `OnProcess()` method again on the next tick.
+
+This `Success`/`Failure` system is how the tree makes decisions and flows from one branch to another.
+
+## Core Properties and Methods
+
+Here’s a breakdown of the most important members of the `Node.cs` class.
+
+### Properties
+
+| Property      | Type            | Description                                                                                                                 |
+| :------------ | :-------------- | :-------------------------------------------------------------------------------------------------------------------------- |
+| `ownerTree`   | `BehaviorTree`  | A runtime reference to the `BehaviorTree` instance this node belongs to. Crucial for accessing shared components.           |
+| `blackboard`  | `Blackboard`    | A convenient shortcut to `ownerTree.blackboard`. Used for reading from and writing to the tree's shared data storage.         |
+| `status`      | `Status`        | The current execution status of the node (`Success`, `Failure`, or `Running`).                                              |
+| `priority`    | `int`           | Used by certain composite nodes (like a Priority Selector) to determine execution order. Higher numbers mean higher priority. |
+| `id`          | `string`        | A unique GUID for the node, used internally by the editor for saving and linking.                                           |
+| `position`    | `Rect`          | The node's position on the Behavior Tree editor graph.                                                                      |
+
+### Methods
+
+#### Lifecycle Methods (You Override These)
+
+-   `protected abstract Status OnProcess()`
+    The heart of your node. You **must** implement this method in your custom nodes. It contains the logic that runs every tick and must return `Success`, `Failure`, or `Running`.
+
+-   `protected virtual void OnEnter()`
+    Override this for setup logic. It's called before the first `OnProcess()`.
+
+-   `protected virtual void OnExit()`
+    Override this for cleanup logic. It's called after the node returns `Success` or `Failure`.
+
+#### Core Methods (Managed by the System)
+
+-   `public Status Process()`
+    This is the main entry point called by the parent node or the tree itself. It manages the `OnEnter`/`OnProcess`/`OnExit` flow and should not be overridden or called directly.
+
+-   `public virtual Node Clone()`
+    Creates a runtime instance of the node. This is essential because your Behavior Tree asset is a template. At runtime, the tree is cloned so that each agent has its own unique instance with its own state.
+
+-   `public virtual void Reset()`
+    Resets the node's internal processing state. This is useful if a branch of the tree is aborted.
+
+## The `Node.cs` Script
+
+Here is the full base `Node.cs` script for your reference.
+
+<Code lang="cs" title="ND_BehaviorTree/Node.cs" code={`
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    public abstract class Node : ScriptableObject
+    {
+        
+        /// <summary>
+        /// A reference to the BehaviorTree instance that owns this node.
+        /// This is set at runtime when the tree is cloned. It is not serialized.
+        /// </summary>
+        [System.NonSerialized] public BehaviorTree ownerTree;
+
+        /// <summary>
+        /// A convenience property to get the Blackboard associated with this node's owner tree.
+        /// Returns null if the node is not part of a tree at runtime.
+        /// </summary>
+        public Blackboard blackboard => ownerTree?.blackboard;
+      
+
+        public enum Status { Success, Failure, Running }
+
+        // Runtime state. [NonSerialized] ensures it's not saved to the asset file.
+        public Status status { get; protected set; } = Status.Failure;
+        [NonSerialized] private bool _isProcessing = false;
+
+        // Editor data
+        [SerializeField] private string m_guid;
+        [SerializeField] private Rect m_position;
+        public string typeName;
+
+        public  int priority = 0;
+
+        public string id => m_guid;
+        public Rect position { get => m_position; set => m_position = value; }
+
+        public Node()
+        {
+            if (string.IsNullOrEmpty(m_guid))
+            {
+                m_guid = Guid.NewGuid().ToString();
+            }
+        }
+
+        public Status Process()
+        {
+            if (!_isProcessing)
+            {
+                OnEnter();
+                _isProcessing = true;
+            }
+
+            status = OnProcess();
+
+            if (status != Status.Running)
+            {
+                OnExit();
+                _isProcessing = false;
+            }
+            return status;
+        }
+
+        public virtual void Reset()
+        {
+            _isProcessing = false;
+            status = Status.Failure;
+        }
+
+        public virtual Node Clone()
+        {
+            Node clone = Instantiate(this);
+            clone.name = this.name;
+            return clone;
+        }
+
+        protected virtual void OnEnter() { }
+        protected virtual void OnExit() { }
+        protected abstract Status OnProcess();
+
+        // --- Child Management ---
+        public virtual void AddChild(Node child) { }
+        public virtual void RemoveChild(Node child) { }
+        public virtual List<Node> GetChildren() => new List<Node>();
+
+        // --- Editor-only methods ---
+        public void SetPosition(Rect newPosition) => m_position = newPosition;
+        public void SetNewID(string newID) => m_guid = newID;
+
+        // This is for further update
+        public Action InteruptAction;
+    }
+}
+`} />
+
+## Core Node Categories
+
+While `Node` is the abstract base, you'll never use it directly in your graph. Instead, you will work with three primary categories of nodes that inherit from it. Each category serves a distinct purpose in the structure and logic of your Behavior Tree.
+
+| Node Category      | Brief Description                                                                                                | Further Information                                                       |
+| :----------------- | :--------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------ |
+| **Composite Node** | These nodes are the branches of your tree. They contain and execute a list of child nodes according to a specific rule (e.g., in sequence or by priority). | [Read about Composite Nodes](/ND_BehaviorTreeDocumentPage/build-in-elements/nodes/composite-nodes/)   |
+| **Auxiliary Node** | These nodes attach to other nodes to modify their behavior. This category includes **Decorators** (which alter the result or act as condition checker) and **Services** (which run in the background). | [Read about Auxiliary Nodes](/ND_BehaviorTreeDocumentPage/build-in-elements/nodes/auxiliary-nodes/)   |
+| **Action Node**    | These are the leaves of your tree. They perform the actual work of your AI, such as moving a character, attacking an enemy, or checking a condition. They have no children. | [Read about Action Nodes](/ND_BehaviorTreeDocumentPage/build-in-elements/nodes/action-nodes/)         |
+
+Understanding these three categories is the first step to designing effective and readable Behavior Trees. The following tutorials will show you how to combine them to create intelligent behavior.
+
+
+## Node in editor
+
+In the ND_BehaviorTree , Node is depicted as : 
+![Create Blackboard](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/Node.png)
+
+Double click to the node will open its `NodeEditor` to view and modify:
+| Variables     | Brief Description                               | Visibility                                                        |
+| :-------------| :-----------------------------------------------| :------------------------------------------------------------------------ |
+|***Display Name***| Sets the display name shown on the node.          | Always visible and editable                                                |
+|***Priority ***| Used in specific nodes like RandomRateSelector for determining execution priority. This will be extended for future functionality. | Always visible and adjustable  |
+|*** Public Variable*** | All public fields declared in the script will be shown and editable in the editor.| Automatically visible by default and editable|
+
+![Create Blackboard](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/DebugLogPropertyNode.png)

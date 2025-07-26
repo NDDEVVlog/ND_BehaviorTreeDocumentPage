@@ -1,80 +1,110 @@
 /* src/styles/custom.css */
 
-/* Target the container for the hero image */
-.hero .image {
-  /* 1. This still makes the image bigger. You can adjust the value. */
-  max-width: 150rem;
+/*
+================================================================
+  1. General & Theming
+================================================================
+*/
 
-  /* 
-     2. This creates the gradient fade effect at the bottom.
-     It applies a "mask" that is a linear gradient.
-     - The gradient goes from black (fully visible) to transparent (fully faded).
-     - 'black 60%' means the image is solid from the top down to 60% of its height.
-     - 'transparent 100%' means the fade finishes at the very bottom.
-  */
-  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+/* --- Sidebar Group Headings --- */
+.sl-sidebar h2 {
+  color: #ffffff; /* Sets the label color to white */
+  font-weight: 600; /* Makes the label a bit bolder */
+  text-transform: uppercase; /* Makes the label all caps */
 }
 
-img[src*="Illustration2.png"] {
-  max-width: 750px;
-  width: 100%;
-  height: auto;
-
-  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
-}
-
-
-/* src/styles/custom.css */
-
-/* Style for the contributor avatar image */
-/* src/styles/custom.css */
 
 /*
-  Creates a flex container to place the avatar and text side-by-side.
+================================================================
+  2. Homepage (Splash Page) Styles
+================================================================
 */
+
+/* --- Hero Image Styling --- */
+/* Targets the container for the hero image on the main page */
+.hero .image {
+  /* You can adjust this value to control the image size */
+  max-width: 750px;
+
+  /* Creates a fade effect at the bottom of the image */
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+/* --- Compact Contributor Section on Homepage --- */
+.community-section {
+  text-align: center;
+  margin-top: 3rem;
+  padding: 2rem 1rem; /* Add padding for spacing */
+  background-color: var(--sl-color-gray-6); /* Subtle background color */
+  border-radius: 0.5rem;
+}
+
+.community-section p {
+  max-width: 60ch;
+  margin: 0 auto 1.5rem;
+}
+
+.contributor-avatars {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.contributor-link {
+  display: block;
+  transition: transform 0.2s ease-in-out;
+}
+.contributor-link:hover {
+  transform: scale(1.15);
+}
+
+.contributor-avatar-small {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid var(--sl-color-gray-4);
+  object-fit: cover;
+  background-color: var(--sl-color-gray-5);
+}
+
+
+/*
+================================================================
+  3. Detailed Contributor Cards (for License/Support Page)
+================================================================
+*/
+
+/* --- Flex container for side-by-side layout --- */
 .contributor-body {
   display: flex;
-  align-items: center; /* Vertically aligns the avatar and text */
-  gap: 1rem; /* Adds a nice space between the avatar and the text */
-  padding-top: 0.5rem; /* Adds a little space below the card title */
+  align-items: center;
+  gap: 1rem;
+  padding-top: 0.5rem;
 }
 
-/*
-  Styles the contributor's avatar image.
-*/
+/* --- Avatar image inside the detailed card --- */
 .contributor-avatar {
-  /* You can adjust the size here. 60px is a good starting point. */
   width: 60px;
   height: 60px;
-  border-radius: 50%; /* Makes the image a perfect circle */
-  object-fit: cover; /* Prevents the image from stretching if it's not square */
-  flex-shrink: 0; /* Prevents the image from shrinking on small screens */
-  margin: 0; /* Removes any default margins */
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  margin: 0;
 }
 
-/*
-  Styles the description text next to the avatar.
-*/
+/* --- Description text next to the avatar --- */
 .contributor-description {
-  margin: 0; /* Removes default paragraph margins */
+  margin: 0;
   font-style: italic;
-  font-size: var(--sl-text-sm); /* Use Starlight's theme variable for font size */
-  color: var(--sl-color-gray-3); /* Use Starlight's theme variable for a subtle color */
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-gray-3);
 }
 
-/*
-  (Optional but recommended) Removes the underline from the link that wraps the card.
-*/
+/* --- Removes underline from the link wrapping the card --- */
 .contributor-card-link {
   text-decoration: none;
-}
-
-.sl-sidebar h2 {
-  color: #ffffff; /* A nice green color */
-
-  /* You can also add other styles here */
-  font-weight: 600; /* Make it a bit bolder */
-  text-transform: uppercase; /* Make it all caps */
 }

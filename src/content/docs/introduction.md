@@ -5,7 +5,7 @@ description: Welcome to the Behavior Tree System documentation.
 
 Ever felt constrained by Unity's built-in Behavior Tree? Wished you could dig into the source code, but couldn't? Found the perfect tool on the Asset Store, only to be stopped by the price?
 
-§(*￣▽￣*)§ Thank you, AI.
+§(*￣▽￣*)§ Yayyyy. Thank you, AI.
 
 I just want to say that this project is completely free. I hope my Behavior Tree system can help you create better AI.
 

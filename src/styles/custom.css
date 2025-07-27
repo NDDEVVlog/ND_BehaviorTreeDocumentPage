@@ -108,3 +108,59 @@
 .contributor-card-link {
   text-decoration: none;
 }
+
+
+.icon-small {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: rgb(64, 93, 255);
+}
+
+.icon-medium {
+  width: 2rem;
+  height: 2rem;
+  color: rgb(64, 93, 255);
+}
+
+.icon-large {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: rgb(64, 93, 255);
+}
+
+
+.custom-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem; /* Space between icon and text */
+    font-size: var(--sl-text-h4); /* Use Starlight's variable for font size */
+    font-weight: 600;
+    margin-bottom: 0.5rem; /* Space between header and content */
+  }
+
+  .custom-card-header svg {
+    width: 1.5em; /* Make the icon size relative to the font size */
+    height: 1.5em;
+  }
+
+  .header-box {
+    /* --- Styling for the box itself --- */
+    background-color: var(--sl-color-gray-5); /* A light gray from Starlight's theme */
+    padding: 0.75rem 1rem; /* Add some space inside the box */
+    border-radius: var(--sl-radius-medium); /* Round the corners of the box */
+    margin-bottom: 1rem; /* Add space between the box and the content below */
+    
+    /* --- Styling for the items inside the box (icon + text) --- */
+    display: flex;
+    align-items: center;
+    gap: 0.75rem; /* Space between the icon and the text */
+    font-size: var(--sl-text-h4);
+    font-weight: 600;
+  }
+
+  /* --- Styling for your SVG icon --- */
+  .header-box svg {
+    width: 1.5em;
+    height: 1.5em;
+    color: #8A2BE2; /* A nice purple color like in your image */
+  }

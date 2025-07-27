@@ -2,6 +2,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import { ion } from 'starlight-ion-theme';
+import rapide from 'starlight-theme-rapide';
 
 // https://astro.build/config
 export default defineConfig({
@@ -23,11 +24,11 @@ export default defineConfig({
             },
             sidebar: [
                 {
-                    label: '[mdi:update] Update Info',
-                    items: [{ label: '[fe:loop] ChangeLog', link: '/update-info/change-log/', badge: { text: 'New', variant: 'success' } }],
+                    label: 'Update Info',
+                    items: [{ label: 'ChangeLog', link: '/update-info/change-log/', badge: { text: 'New', variant: 'success' } }],
                 },
                 {
-                    label: '[ri:flag-line] Start Here',
+                    label: 'Start Here',
                     items: [
                         { label: 'Introduction', link: '/introduction/' },
                         { label: 'Installation', link: '/getting-started/installation/', badge: { text: 'Start', variant: 'tip' } },
@@ -35,7 +36,7 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: '[ri:lightbulb-flash-line] Tutorials',
+                    label: 'Tutorials',
                     items: [
                         { label: 'Your First Behavior Tree', link: '/tutorials/first-tree/' },
                         { label: 'Basics of a Node', link: '/tutorials/node-basic/' },
@@ -46,7 +47,7 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: '[lucide:blocks] Built-in Elements',
+                    label: 'Built-in Elements',
                     items: [
                         { label: 'Debug Nodes', link: '/build-in-elements/nodes/debug-nodes/' },
                         { label: 'Composite Nodes', link: '/build-in-elements/nodes/composite-nodes/' },
@@ -55,26 +56,47 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: '[ph:code-bold] Reference',
+                    label: 'Plugins',
+                    
+                    items:[
+                        { label: 'Overview', link: '/plugins/overview/' },
+                         // This is now a collapsible group for the SpellTech plugin
+                        {
+                            label: 'SpellTech Plugin',
+                            items: [
+                                { label: 'Animation Event', link: '/plugins/spelltech/animation-event/' },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    label: 'Reference',
                     autogenerate: { directory: 'reference' },
                 },
                 // --- ADDED NEW PAGE HERE ---
                 {
-                    label: '[ri:award-line] License & Contribution',
+                    label: 'License & Contribution', badge: { text: 'You may care', variant: 'caution'},
                     link: '/license-contribution/',
                 },
                 {
-                    label: '[ri:mail-line] Contact & Support',
+                    label: 'Contact & Support',
                     link: '/contact/',
                 },
                 {
-                    label: '[ri:question-answer-line] FAQ',
+                    label: 'FAQ',
                     link: '/faq/',
                 },
             ],
             customCss: ['./src/styles/custom.css'],
             plugins: [
-               ion()
+               
+            //rapide(),
+            // ion({
+            //       // This is the correct way to add custom icons for the Ion theme
+            //       icons: {
+            //         iconDir: "./src/icons",
+            //       },
+            //     }),
             ],
         }),
     ],

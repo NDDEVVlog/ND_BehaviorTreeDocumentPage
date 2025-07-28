@@ -1,0 +1,70 @@
+---
+title: Random Selector Node
+description: Randomly selects and runs one child with equal probability.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This composite node randomly picks one of its children to execute, with each child having an equal chance of being selected.
+
+**Path in Editor:** `Composite > RandomSelector`
+
+### Behavior
+
+-   On the first run, it randomly picks one child to execute.
+-   It then returns the status of that chosen child (`Success`, `Failure`, or `Running`).
+-   If the chosen child returns `Running`, this node will continue to execute that *same* child on subsequent ticks until it finishes. A new random child is only chosen after the previous one has completed.
+-   **Returns `Failure`** if it has no children.
+
+### Example Usage
+Perfect for idle behaviors where an AI might randomly choose between looking around, scratching its head, or shifting its weight.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE RandomSelectorNode.cs ---
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Random Selector", "Composite/RandomSelector", true, true, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/RandomBox.png", isChildOnly: false)]
+    public class RandomSelectorNode : CompositeNode
+    {
+        private Node runningChild = null;
+
+        protected override void OnEnter() { runningChild = null; }
+
+        protected override Status OnProcess()
+        {
+            TickServices();
+            Node childToProcess;
+            if (runningChild != null) childToProcess = runningChild;
+            else
+            {
+                if (children.Count == 0) return Status.Failure;
+                childToProcess = children[Random.Range(0, children.Count)];
+            }
+
+            var status = childToProcess.Process();
+            switch (status)
+            {
+                case Status.Running:
+                    runningChild = childToProcess;
+                    return Status.Running;
+                case Status.Success:
+                    runningChild = null;
+                    return Status.Success;
+                default:
+                    runningChild = null;
+                    return Status.Failure;
+            }
+        }
+        public override void Reset()
+        {
+            base.Reset();
+            runningChild = null;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

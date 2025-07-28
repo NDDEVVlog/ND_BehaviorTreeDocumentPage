@@ -49,18 +49,73 @@ export default defineConfig({
                 {
                     label: 'Built-in Elements',
                     items: [
-                        { label: 'Debug Nodes', link: '/build-in-elements/nodes/debug-nodes/' },
-                        { label: 'Composite Nodes', link: '/build-in-elements/nodes/composite-nodes/' },
-                        { label: 'Auxiliary Nodes', link: '/build-in-elements/nodes/auxiliary-nodes/' },
-                        { label: 'Action Nodes', link: '/build-in-elements/nodes/action-nodes/' },
+                        { label: 'Overview', link: '/build-in-elements/' },
+                        {
+                            label: 'Nodes',
+                            items: [
+                                {
+                                    label: 'Action Nodes',
+                                    items: [
+                                        { label: 'Overview', link: '/build-in-elements/nodes/action-nodes/' },
+                                        { label: 'Clear Blackboard Key', link: '/build-in-elements/nodes/action-nodes/clear-blackboard-key-node/' },
+                                        { label: 'Debug Log', link: '/build-in-elements/nodes/action-nodes/debug-log-node/' },
+                                        { label: 'Find Target', link: '/build-in-elements/nodes/action-nodes/find-target-node/' },
+                                        { label: 'Invoke Unity Event', link: '/build-in-elements/nodes/action-nodes/invoke-unity-event-node/' },
+                                        { label: 'Move To Patrol Point', link: '/build-in-elements/nodes/action-nodes/move-to-patrol-point-node/' },
+                                        { label: 'Move To Transform', link: '/build-in-elements/nodes/action-nodes/move-to-transform-node/' },
+                                        { label: 'Set Animator Trigger', link: '/build-in-elements/nodes/action-nodes/set-animator-trigger-node/' },
+                                        { label: 'Set Boolean Value', link: '/build-in-elements/nodes/action-nodes/set-boolean-value-node/' },
+                                        { label: 'Wait', link: '/build-in-elements/nodes/action-nodes/wait-node/' },
+                                    ],
+                                },
+                                {
+                                    label: 'Composite Nodes',
+                                    items: [
+                                        { label: 'Overview', link: '/build-in-elements/nodes/composite-nodes/' },
+                                        { label: 'Parallel', link: '/build-in-elements/nodes/composite-nodes/parallel-node/' },
+                                        { label: 'Random Rate Selector', link: '/build-in-elements/nodes/composite-nodes/random-rate-selector-node/' },
+                                        { label: 'Random Selector', link: '/build-in-elements/nodes/composite-nodes/random-selector-node/' },
+                                        { label: 'Selector', link: '/build-in-elements/nodes/composite-nodes/selector-node/' },
+                                        { label: 'Sequence', link: '/build-in-elements/nodes/composite-nodes/sequence-node/' },
+                                    ]
+                                },
+                                {
+                                    label: 'Auxiliary Nodes',
+                                    items: [
+                                        { label: 'Overview', link: '/build-in-elements/nodes/auxiliary-nodes/' },
+                                        // --- FIX STARTS HERE ---
+                                        {
+                                            label: 'Decorators', // This is just the group label
+                                            items: [
+                                                // The overview page is now the first item in the group
+                                                { label: 'Overview', link: '/build-in-elements/nodes/auxiliary-nodes/decorator/' },
+                                                { label: 'Check Condition Variable', link: '/build-in-elements/nodes/auxiliary-nodes/decorator/check-condition-variable/' },
+                                                { label: 'Cooldown', link: '/build-in-elements/nodes/auxiliary-nodes/decorator/cooldown-node/' },
+                                                { label: 'Inverter', link: '/build-in-elements/nodes/auxiliary-nodes/decorator/inverter-node/' },
+                                                { label: 'Repeater', link: '/build-in-elements/nodes/auxiliary-nodes/decorator/repeater-node/' },
+                                                { label: 'Succeeder', link: '/build-in-elements/nodes/auxiliary-nodes/decorator/succeeder-node/' },
+                                                { label: 'Time Limit', link: '/build-in-elements/nodes/auxiliary-nodes/decorator/time-limit-node/' },
+                                            ]
+                                        },
+                                        {
+                                            label: 'Services', // This is just the group label
+                                            items: [
+                                                // The overview page is now the first item in the group
+                                                { label: 'Overview', link: '/build-in-elements/nodes/auxiliary-nodes/service/' },
+                                                { label: 'Rotate To Target', link: '/build-in-elements/nodes/auxiliary-nodes/service/rotate-to-target-service/' },
+                                            ]
+                                        },
+                                        // --- FIX ENDS HERE ---
+                                    ]
+                                },
+                            ]
+                        }
                     ],
                 },
                 {
                     label: 'Plugins',
-                    
                     items:[
                         { label: 'Overview', link: '/plugins/overview/' },
-                         // This is now a collapsible group for the SpellTech plugin
                         {
                             label: 'SpellTech Plugin',
                             items: [
@@ -73,7 +128,6 @@ export default defineConfig({
                     label: 'Reference',
                     autogenerate: { directory: 'reference' },
                 },
-                // --- ADDED NEW PAGE HERE ---
                 {
                     label: 'License & Contribution', badge: { text: 'You may care', variant: 'caution'},
                     link: '/license-contribution/',
@@ -89,14 +143,6 @@ export default defineConfig({
             ],
             customCss: ['./src/styles/custom.css'],
             plugins: [
-               
-            //rapide(),
-            // ion({
-            //       // This is the correct way to add custom icons for the Ion theme
-            //       icons: {
-            //         iconDir: "./src/icons",
-            //       },
-            //     }),
             ],
         }),
     ],

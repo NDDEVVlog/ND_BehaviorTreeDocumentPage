@@ -1,0 +1,40 @@
+---
+title: Action Nodes Overview
+description: Action Nodes are the leaf nodes of a behavior tree that perform the actual work.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+## Overview
+
+**Action Nodes** are the fundamental building blocks of any behavior tree. They are the "leaves" of the tree and are responsible for performing the actual tasks and changing the state of the game world. They do not have any child nodes.
+
+An action can be anything from moving an AI, playing an animation, attacking a target, or logging a message. The key characteristic of an Action Node is that it executes a specific piece of logic and returns a status to its parent.
+
+### Core Concepts
+- **No Children:** Action nodes are terminal; they cannot have children.
+- **Perform Work:** They contain the direct logic for your AI's behavior (e.g., `agent.SetDestination()`, `animator.SetTrigger()`).
+- **Return Status:** Every action must return one of three statuses:
+    - `Success`: The action completed its task successfully.
+    - `Failure`: The action could not complete its task.
+    - `Running`: The action is in progress and needs more time to complete.
+
+<Tabs>
+<TabItem label="C# Base Class">
+```csharp
+// --- START OF FILE ActionNode.cs ---
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    public abstract class ActionNode : Node
+    {
+        public override void AddChild(Node child) { }
+        public override void RemoveChild(Node child) { }
+        public override System.Collections.Generic.List<Node> GetChildren() => new System.Collections.Generic.List<Node>();
+    }
+}
+```
+</TabItem>
+</Tabs>

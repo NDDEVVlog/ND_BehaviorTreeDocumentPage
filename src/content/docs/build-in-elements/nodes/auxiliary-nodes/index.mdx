@@ -1,0 +1,66 @@
+---
+title: Auxiliary Nodes Overview
+description: An overview of Auxiliary Nodes, which include Decorators and Services.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+## Overview
+
+**Auxiliary Nodes** are nodes that assist or modify other nodes. They always have a single "parent" node they are attached to or a single "child" they affect. There are two main types of Auxiliary Nodes in this framework: **Decorators** and **Services**.
+
+-   **Decorators:** Wrap a single child node to modify its behavior or outcome (e.g., Inverter, Repeater). They are part of the main execution flow.
+-   **Services:** Attach to a Composite node and run periodically in the background as long as the composite is active. They are not part of the main execution flow.
+
+<Tabs>
+<TabItem label="C# Base Class">
+```csharp
+// --- START OF FILE AuxiliaryNode.cs ---
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    public abstract class AuxiliaryNode : Node
+    {
+         public Node child;
+
+        public void SetChild(Node child)
+        {
+            this.child = child;
+        }
+
+        public override void AddChild(Node newChild)
+        {
+            this.child = newChild;
+        }
+
+        public override void RemoveChild(Node childToRemove)
+        {
+            if (this.child == childToRemove)
+            {
+                this.child = null;
+            }
+        }
+
+        public override List<Node> GetChildren()
+        {
+            var list = new List<Node>();
+            if (child != null)
+            {
+                list.Add(child);
+            }
+            return list;
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            if(child != null)
+                child.Reset();
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

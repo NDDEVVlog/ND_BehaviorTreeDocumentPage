@@ -1,0 +1,65 @@
+---
+title: Services Overview
+description: An overview of Service Nodes, which perform background tasks on a timer.
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+## Overview
+
+**Service Nodes** are a special type of Auxiliary Node that are **not** part of the main execution flow. Instead, they are attached to a Composite Node and run on a regular, timed interval as long as their parent composite is active in the behavior tree.
+
+Services are perfect for tasks that need to happen periodically in the background, without interrupting the main logic of the tree.
+
+<Aside type="note">
+**Key Difference:** Unlike a Decorator, a Service does not wrap a child and does not affect the `Success` or `Failure` status of the branch it's on. It runs in parallel to the composite's children.
+</Aside>
+
+Common uses for services include:
+- Periodically searching for a player or target.
+- Updating a Blackboard value (e.g., the distance to a target).
+- Checking an AI's health or other stats.
+
+<Tabs>
+<TabItem label="C# Base Class">
+```csharp
+// --- START OF FILE ServiceNode.cs ---
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{   
+    public abstract class ServiceNode : AuxiliaryNode
+    {
+        public float interval = 1.0f;
+        public bool runOnEnter = true;
+
+        [System.NonSerialized]
+        private float lastExecutionTime;
+
+        protected override void OnEnter()
+        {
+            lastExecutionTime = -interval;
+            if (runOnEnter)
+            {
+                lastExecutionTime = Time.time;
+                OnTick();
+            }
+        }
+
+        protected override Status OnProcess()
+        {
+            if (Time.time - lastExecutionTime > interval)
+            {
+                lastExecutionTime = Time.time;
+                OnTick();
+            }
+            return Status.Success;
+        }
+
+        protected override void OnExit() { }
+
+        protected abstract void OnTick();
+    }
+}
+```
+</TabItem>
+</Tabs>

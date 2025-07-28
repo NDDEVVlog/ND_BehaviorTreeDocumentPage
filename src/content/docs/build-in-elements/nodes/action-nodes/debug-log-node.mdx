@@ -1,0 +1,63 @@
+---
+title: Debug Log Node
+description: Logs a custom message and an optional Blackboard key's value to the Unity console.
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+This Action node is used for debugging. It prints a colored message to the Unity console, optionally including the value of a specified Blackboard key.
+
+**Path in Editor:** `Action > Debug > DebugLog`
+
+### Properties
+
+| Property          | Type   | Description                                                     |
+| ----------------- | ------ | --------------------------------------------------------------- |
+| `message`         | string | The base message to log to the console.                         |
+| `logColor`        | Color  | The color of the log message in the console.                    |
+| `keyToLog`        | Key    | (Optional) A Blackboard key to log the value of.                |
+| `returningStatus` | Status | The status (`Success` or `Failure`) to return after logging. |
+
+### Behavior
+
+This node is instantaneous. When processed, it constructs the log message, applies color, prints it to the console, and immediately returns the status defined in `returningStatus`.
+
+<Aside type="note">
+This node never returns `Running`. It is incredibly useful for visually confirming that a specific branch of your behavior tree is being executed.
+</Aside>
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE DebugLogNode.cs ---
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Debug Log", "Action/Debug/DebugLog", true, false, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/DebugIcon.png")]
+    public class DebugLogNode : ActionNode
+    {
+        [Tooltip("The base message to log to the console.")]
+        public string message = "Log Message";
+        [Tooltip("The color of the log message in the console.")]
+        public Color logColor = Color.green;
+        [Tooltip("(Optional) A Blackboard key to log the value of.")]
+        public Key keyToLog;
+        public Status returningStatus = Status.Success;
+
+        protected override Status OnProcess()
+        {
+            string logString = $"{message}";
+            if (keyToLog != null && !string.IsNullOrEmpty(keyToLog.keyName))
+            {
+                object value = blackboard.GetValue<object>(keyToLog.keyName);
+                logString += $" | Key '{keyToLog.name}': {value ?? "null"}";
+            }
+            string finalColoredLog = $"<color=#{ColorUtility.ToHtmlStringRGB(logColor)}>{logString}</color>";
+            Debug.Log(finalColoredLog);
+            return returningStatus;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

@@ -1,0 +1,59 @@
+---
+title: Wait Node
+description: Pauses the execution of the behavior tree branch for a specified duration.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This Action node pauses the behavior tree's execution at its position for a fixed amount of time.
+
+**Path in Editor:** `Action > Wait`
+
+### Properties
+
+| Property   | Type  | Description                                        |
+| ---------- | ----- | -------------------------------------------------- |
+| `duration` | float | The time in seconds to wait before returning `Success`. |
+
+### Behavior
+
+-   **On Enter:** The node records the current time.
+-   **On Process:**
+    -   **Returns `Running`** if the elapsed time is less than `duration`.
+    -   **Returns `Success`** once the elapsed time has exceeded `duration`.
+
+### Example Usage
+Use this node in a `Sequence` to make an AI pause after reaching a patrol point before moving to the next one. (`Move To Patrol Point` -> `Wait` -> `Next Patrol Point`)
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE WaitNode.cs ---
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Wait", "Action/Wait", true, false,iconPath:"Assets/ND_BehaviorTree/NDBT/Icons/Wait.png")]
+    public class WaitNode : ActionNode
+    {   
+        public float duration = 1.0f;
+        [HideInInspector]
+        protected float _startTime;
+
+        protected override void OnEnter()
+        {
+            _startTime = Time.time;
+        }
+
+        protected override Status OnProcess()
+        {
+            if (Time.time - _startTime > duration)
+            {   
+                return Status.Success;
+            }
+            return Status.Running;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

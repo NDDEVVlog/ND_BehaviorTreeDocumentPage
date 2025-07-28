@@ -1,0 +1,70 @@
+---
+title: Selector Node
+description: Executes children in order until one succeeds or is running.
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+A Selector node, often represented as a "?" in behavior tree diagrams, executes its children from top to bottom until one of them returns `Success` or `Running`.
+
+**Path in Editor:** `Composite > Selector`
+
+### Behavior
+
+-   It tries to execute its first child.
+    -   If the child returns **`Success`**, the Selector immediately returns **`Success`** and does not run any more children.
+    -   If the child returns **`Running`**, the Selector immediately returns **`Running`** and will re-evaluate the same child on the next tick.
+    -   If the child returns **`Failure`**, the Selector moves to the next child and repeats the process.
+-   If all children return `Failure`, the Selector itself returns **`Failure`**.
+
+<Aside type="note">
+This node is like a logical OR operation. It's used for decision-making: "Try to do A, if that fails, try B, if that fails, try C."
+</Aside>
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE SelectorNode.cs ---
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Selector", "Composite/Selector", true, true, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/Selector.png", isChildOnly: false)]
+    public class SelectorNode : CompositeNode
+    {
+        protected int currentChildIndex;
+
+        protected override void OnEnter()
+        {
+            currentChildIndex = 0;
+        }
+
+        protected override Status OnProcess()
+        {
+            TickServices();
+            if (children.Count == 0) return Status.Failure;
+
+            if (currentChildIndex < children.Count)
+            {
+                switch (children[currentChildIndex].Process())
+                {
+                    case Status.Running:
+                        return Status.Running;
+                    case Status.Success:
+                        Reset();
+                        return Status.Success;
+                    default:
+                        currentChildIndex++;
+                        return Status.Running;
+                }
+            }
+            Reset();
+            return Status.Failure;
+        }
+        public override void Reset()
+        {
+            base.Reset();
+            currentChildIndex = 0;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

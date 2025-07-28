@@ -1,0 +1,80 @@
+---
+title: Parallel Node
+description: Executes all of its children simultaneously.
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+The Parallel node executes all of its child branches at the same time. Its own success or failure is determined by configurable policies based on the results of its children.
+
+**Path in Editor:** `Composite > Parallel`
+
+### Properties
+
+| Property         | Type   | Description                                                        |
+| ---------------- | ------ | ------------------------------------------------------------------ |
+| `successPolicy`  | Policy | `RequireOne`: Succeeds as soon as one child succeeds. `RequireAll`: Succeeds only when all children have succeeded. |
+| `failurePolicy`  | Policy | `RequireOne`: Fails as soon as one child fails. `RequireAll`: Fails only when all children have failed. |
+
+### Behavior
+
+-   **Returns `Success`** or **`Failure`** based on the policies and the status of its children.
+-   **Returns `Running`** as long as the conditions for success or failure have not yet been met.
+
+<Aside type="note">
+This node is powerful for running a primary task (like moving) while simultaneously running a secondary task (like looking around or playing a walking animation).
+</Aside>
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE ParallelNode.cs ---
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Parallel", "Composite/Parallel", true, false, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/Parallel.png")]
+    public class ParallelNode : CompositeNode
+    {
+        public enum Policy { RequireOne, RequireAll }
+        [Tooltip("Success Policy: How many children need to succeed for the parallel node to succeed.")]
+        public Policy successPolicy = Policy.RequireOne;
+        [Tooltip("Failure Policy: How many children need to fail for the parallel node to fail.")]
+        public Policy failurePolicy = Policy.RequireAll;
+
+        protected override void OnEnter()
+        {
+            children.ForEach(c => c.Reset());
+        }
+
+        protected override Status OnProcess()
+        {
+            TickServices();
+            if (children.Count == 0) return Status.Success;
+            int successCount = 0;
+            int failureCount = 0;
+
+            foreach (var child in children)
+            {
+                if (child.status != Status.Success && child.status != Status.Failure) child.Process();
+                if (child.status == Status.Success) successCount++;
+                if (child.status == Status.Failure) failureCount++;
+            }
+
+            if (successPolicy == Policy.RequireOne && successCount > 0) return Status.Success;
+            if (successPolicy == Policy.RequireAll && successCount == children.Count) return Status.Success;
+            if (failurePolicy == Policy.RequireOne && failureCount > 0) return Status.Failure;
+            if (failurePolicy == Policy.RequireAll && failureCount == children.Count) return Status.Failure;
+
+            return Status.Running;
+        }
+        public override void Reset()
+        {
+            base.Reset();
+            children.ForEach(c => c.Reset());
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

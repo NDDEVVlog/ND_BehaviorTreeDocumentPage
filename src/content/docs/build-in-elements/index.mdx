@@ -1,0 +1,24 @@
+---
+title: Built-in Elements
+description: An overview of the core nodes and components included in the ND_BehaviorTree system.
+---
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+This section details all the ready-to-use nodes that come with the ND_BehaviorTree framework. These nodes are the fundamental building blocks for creating complex AI behaviors.
+
+They are categorized by their function within the tree.
+
+<CardGrid>
+	<Card title="Action Nodes" icon="action">
+		The leaves of the tree that perform the actual work, like moving or attacking.
+        [See all Action Nodes](./nodes/action-nodes/)
+	</Card>
+	<Card title="Composite Nodes" icon="puzzle">
+		The branches of the tree that control the flow of execution among their children.
+        [See all Composite Nodes](./nodes/composite-nodes/)
+	</Card>
+	<Card title="Auxiliary Nodes" icon="beaker">
+		Wrapper nodes (Decorators) and background tasks (Services) that modify or support other nodes.
+        [See all Auxiliary Nodes](./nodes/auxiliary-nodes/)
+	</Card>
+</CardGrid>

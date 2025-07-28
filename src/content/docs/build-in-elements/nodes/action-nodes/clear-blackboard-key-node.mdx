@@ -1,0 +1,54 @@
+---
+title: Clear Blackboard Key Node
+description: Sets a specific key on the Blackboard to null, effectively clearing its value.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This Action node sets the value of a specified Blackboard key to `null`. This is useful for clearing data, such as a target that is no longer valid or in range.
+
+**Path in Editor:** `Action > Blackboard > ClearKey`
+
+### Properties
+
+| Property       | Type | Description                                   |
+| -------------- | ---- | --------------------------------------------- |
+| `keyToClear`   | Key  | The Blackboard key to clear (set to null).    |
+
+### Behavior
+
+This node is instantaneous.
+-   **Returns `Success`** if `keyToClear` is valid and the value is successfully set to `null` on the Blackboard.
+-   **Returns `Failure`** if `keyToClear` is not assigned.
+
+### Example Usage
+After an enemy is defeated, use this node to clear the AI's `currentTarget` key on the Blackboard so it can search for a new one.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE ClearBlackboardKeyNode.cs ---
+using UnityEngine;
+using ND_BehaviorTree;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Clear Blackboard Key", "Action/Blackboard/ClearKey", true, false)]
+    public class ClearBlackboardKeyNode : ActionNode
+    {
+        [Tooltip("The Blackboard key to clear (set to null).")]
+        public Key keyToClear;
+
+        protected override Status OnProcess()
+        {
+            if (keyToClear != null && blackboard != null)
+            {
+                blackboard.SetValue<object>(keyToClear.keyName, null);
+                return Status.Success;
+            }
+            return Status.Failure;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

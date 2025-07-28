@@ -1,0 +1,116 @@
+---
+title: Random Rate Selector Node
+description: Randomly selects and runs one child, using the child's priority as a weight.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This composite node selects one of its children to execute based on a weighted random chance. The weight for each child is determined by its `priority` value, which can be configured in the editor.
+
+**Path in Editor:** `Composite > RandomRateSelector`
+
+### Properties
+
+| Property         | Type         | Description                                                        |
+| ---------------- | ------------ | ------------------------------------------------------------------ |
+| `weightingMode`  | WeightingMode| `LowerIsBetter`: Children with a lower priority value have a higher chance of being picked. `HigherIsBetter`: Children with a higher priority value have a higher chance. |
+
+### Behavior
+
+-   On the first run, it calculates weights for all children and randomly picks one to execute.
+-   It then returns the status of that chosen child (`Success`, `Failure`, or `Running`).
+-   If the child returns `Running`, this node will continue to execute that *same* child on subsequent ticks until it finishes. A new random child is only chosen after the previous one has completed.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE RandomRateSelectorNode.cs ---
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Random Rate Selector", "Composite/RandomRateSelector", true, true, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/RandomSelector.png", isChildOnly: false)]
+    public class RandomRateSelectorNode : CompositeNode
+    {
+        public enum WeightingMode { LowerIsBetter, HigherIsBetter }
+        [Tooltip("LowerIsBetter: Lower priority value = higher chance.\nHigherIsBetter: Higher priority value = higher chance.")]
+        public WeightingMode weightingMode = WeightingMode.LowerIsBetter;
+        private Node runningChild = null;
+
+        protected override void OnEnter() { runningChild = null; }
+
+        protected override Status OnProcess()
+        {
+            TickServices();
+            Node childToProcess;
+            if (runningChild != null) childToProcess = runningChild;
+            else
+            {
+                childToProcess = SelectChildByWeight();
+                if (childToProcess == null) return Status.Failure;
+            }
+            
+            var status = childToProcess.Process();
+            switch (status)
+            {
+                case Status.Running:
+                    runningChild = childToProcess;
+                    return Status.Running;
+                case Status.Success:
+                    runningChild = null;
+                    return Status.Success;
+                default:
+                    runningChild = null;
+                    return Status.Failure;
+            }
+        }
+
+        private Node SelectChildByWeight()
+        {
+            if (children.Count == 0) return null;
+            if (weightingMode == WeightingMode.HigherIsBetter) return SelectWithHigherIsBetter();
+            else return SelectWithLowerIsBetter();
+        }
+
+        private Node SelectWithHigherIsBetter()
+        {
+            float totalWeight = children.Sum(child => Mathf.Max(0, child.priority));
+            if (totalWeight <= 0) return children.Count > 0 ? children[Random.Range(0, children.Count)] : null;
+            float randomPoint = Random.Range(0, totalWeight);
+            foreach (var child in children)
+            {
+                float weight = Mathf.Max(0, child.priority);
+                if (randomPoint < weight) return child;
+                randomPoint -= weight;
+            }
+            return null;
+        }
+
+        private Node SelectWithLowerIsBetter()
+        {
+            var validChildren = children.Where(c => c.priority > 0).ToList();
+            if (validChildren.Count == 0) return children.Count > 0 ? children[Random.Range(0, children.Count)] : null;
+            int maxPriority = validChildren.Max(c => c.priority);
+            float totalWeight = validChildren.Sum(child => (maxPriority - child.priority) + 1);
+            if (totalWeight <= 0) return null;
+            float randomPoint = Random.Range(0, totalWeight);
+            foreach (var child in validChildren)
+            {
+                float weight = (maxPriority - child.priority) + 1;
+                if (randomPoint < weight) return child;
+                randomPoint -= weight;
+            }
+            return null;
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            runningChild = null;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

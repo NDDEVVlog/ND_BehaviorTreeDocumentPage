@@ -1,0 +1,51 @@
+---
+title: Set Boolean Value Node
+description: Sets a boolean (true/false) value on the Blackboard.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This is a simple but powerful Action node that sets a boolean value for a specified key on the Blackboard. It's essential for managing AI state.
+
+**Path in Editor:** `Action > SetBooleanValueNode`
+
+### Properties
+
+| Property         | Type    | Description                                                 |
+| ---------------- | ------- | ----------------------------------------------------------- |
+| `conditionKey`   | Key     | The Blackboard key (of type `bool`) to set.                 |
+| `ValueToSet`     | bool    | The boolean value (`true` or `false`) to assign to the key. |
+
+### Behavior
+
+-   **Returns `Success`** after setting the value on the Blackboard.
+-   **Returns `Failure`** if `conditionKey` is not assigned.
+
+### Example Usage
+Use this to manage states like `isAlerted`. When an AI finds a player, a `Sequence` could run `FindTarget` then `SetBooleanValue` (`isAlerted` = `true`). Later, a `CheckConditionVariable` decorator can check this flag.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE SetBooleanValueNode.cs ---
+using UnityEngine;
+using ND_BehaviorTree;
+using Key = ND_BehaviorTree.Key;
+
+[NodeInfo("SetBooleanValueNode", "Action/SetBooleanValueNode", true, false,iconPath:"Assets/ND_BehaviorTree/NDBT/Icons/boolean.png")]
+public class SetBooleanValueNode : ActionNode
+{
+    [BlackboardKeyType(typeof(bool))]
+    [Tooltip("The Blackboard key (of type bool) to set value.")]
+    public Key conditionKey;
+    public bool ValueToSet;
+   
+    protected override Status OnProcess()
+    {   
+         if (conditionKey == null) return Status.Failure;
+        blackboard.SetValue<bool>(conditionKey.keyName,ValueToSet);
+        return Status.Success;
+    }
+}
+```
+</TabItem>
+</Tabs>

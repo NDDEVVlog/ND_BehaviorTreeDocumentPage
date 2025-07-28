@@ -1,0 +1,77 @@
+---
+title: Move To Patrol Point Node
+description: Moves a NavMeshAgent to a specific Vector3 position stored on the Blackboard.
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+This Action node commands a `NavMeshAgent` to move towards a static `Vector3` destination. This is ideal for patrol routes where the points do not move.
+
+**Path in Editor:** `Action > Movement > MoveToPatrolPoint`
+
+### Properties
+
+| Property         | Type | Description                                                        |
+| ---------------- | ---- | ------------------------------------------------------------------ |
+| `agentKey`       | Key  | The Blackboard key for the `NavMeshAgent` component on the AI.      |
+| `destinationKey` | Key  | The Blackboard key (of type `Vector3`) for the destination point.  |
+
+### Behavior
+
+-   **On Enter:** Retrieves the `NavMeshAgent` and `Vector3` destination, then sets the agent's destination.
+-   **On Process:**
+    -   **Returns `Failure`** if the agent is missing from the Blackboard.
+    -   **Returns `Success`** when the agent reaches its destination.
+    -   **Returns `Running`** while the agent is calculating its path or moving.
+-   **On Exit:** Calls `agent.ResetPath()` to stop the agent's movement.
+
+<Aside type="caution">
+This node requires a `NavMeshAgent` component on your AI and a baked NavMesh in your scene to function correctly.
+</Aside>
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE MoveToPatrolPointNode.cs ---
+using UnityEngine;
+using UnityEngine.AI;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Move To Patrol Point", "Action/Movement/MoveToPatrolPoint", true, false)]
+    public class MoveToPatrolPointNode : ActionNode
+    {
+        [Tooltip("The Blackboard key for the NavMeshAgent component on the AI.")]
+        public Key agentKey;
+        [Tooltip("The Blackboard key (of type Vector3) for the destination point.")]
+        public Key destinationKey;
+        private NavMeshAgent agent;
+
+        protected override void OnEnter()
+        {
+            if (agentKey != null && blackboard != null) agent = blackboard.GetValue<NavMeshAgent>(agentKey.name);
+            if (agent == null) return;
+            
+            if (destinationKey != null && blackboard != null)
+            {
+                Vector3 destination = blackboard.GetValue<Vector3>(destinationKey.name);
+                agent.SetDestination(destination);
+            }
+        }
+
+        protected override Status OnProcess()
+        {
+            if (agent == null) return Status.Failure;
+            if (agent.pathPending) return Status.Running;
+            if (agent.remainingDistance <= agent.stoppingDistance) return Status.Success;
+            return Status.Running;
+        }
+
+        protected override void OnExit()
+        {
+            if (agent != null && agent.hasPath) agent.ResetPath();
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

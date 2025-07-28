@@ -1,0 +1,60 @@
+---
+title: Check Condition Variable
+description: Checks a boolean value on the Blackboard and only runs its child if the condition is met.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This decorator acts as a gatekeeper for its child branch. It checks a boolean value from the Blackboard and will only execute its child if the condition passes.
+
+**Path in Editor:** `Decorator > CheckConditionVariable`
+
+### Properties
+
+| Property         | Type  | Description                                                        |
+| ---------------- | ----- | ------------------------------------------------------------------ |
+| `conditionKey`   | Key   | The Blackboard key (of type `bool`) to check.                      |
+| `shouldInvert`   | bool  | If `true`, the result is inverted. The child runs if the key is `false`. |
+
+### Behavior
+
+-   It checks the boolean value of `conditionKey` on the Blackboard.
+-   If the condition passes (taking `shouldInvert` into account), it will execute its child node and return the child's status (`Success`, `Failure`, or `Running`).
+-   If the condition fails, it will immediately return **`Failure`** without executing its child.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE CheckConditionVariable.cs ---
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{   
+    [NodeInfo("Check Condition Variable", "Decorator/CheckConditionVariable", true, true, iconPath:"Assets/ND_BehaviorTree/NDBT/Icons/CheckCondition.png")]
+    public class CheckConditionVariable : DecoratorNode
+    {
+        [Tooltip("The Blackboard key (of type bool) to check.")]
+        public Key conditionKey;
+        [Tooltip("If checked, the result of the condition will be inverted.")]
+        public bool shouldInvert;
+
+        protected override Status OnProcess()
+        {
+            if (conditionKey == null) return Status.Failure;
+            bool conditionValue = blackboard.GetValue<bool>(conditionKey.keyName);
+            bool conditionPassed = (conditionValue != shouldInvert);
+
+            if (conditionPassed)
+            {
+                return child != null ? child.Process() : Status.Success;
+            }
+            else
+            {
+                return Status.Failure;
+            }
+        }
+    }
+}
+
+```
+</TabItem>
+</Tabs>

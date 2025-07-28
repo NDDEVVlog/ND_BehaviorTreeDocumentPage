@@ -1,0 +1,67 @@
+---
+title: Invoke Unity Event Node
+description: Invokes a UnityEvent that is stored on the Blackboard.
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+This node gets a `UnityEvent` object from the Blackboard and invokes it. This allows for powerful decoupling, where other scripts can register methods to an event, and the behavior tree can trigger them without any direct reference.
+
+**Path in Editor:** `Action > Events > InvokeUnityEvent`
+
+### Properties
+
+| Property         | Type | Description                                                        |
+| ---------------- | ---- | ------------------------------------------------------------------ |
+| `unityEventKey`  | Key  | The Blackboard key (of type `UnityEvent`) to retrieve and invoke.  |
+
+### Behavior
+
+-   **Returns `Success`** if a valid `UnityEvent` is found on the Blackboard and successfully invoked.
+-   **Returns `Failure`** if the `unityEventKey` is not assigned, or if the value on the Blackboard is null or not a `UnityEvent`.
+
+<Aside type="note">
+Your AI or another manager script must be responsible for creating the `UnityEvent` and placing it on the Blackboard before this node runs.
+</Aside>
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE InvokeUnityEventNode.cs ---
+using UnityEngine;
+using UnityEngine.Events;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Invoke Unity Event", "Action/Events/InvokeUnityEvent", true, false, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/Event.png")]
+    public class InvokeUnityEventNode : ActionNode
+    {
+        [Tooltip("The Blackboard key (of type UnityEvent) that holds the event to be invoked.")]
+        [BlackboardKeyType(typeof(UnityEvent))]
+        public Key unityEventKey;
+
+        protected override Status OnProcess()
+        {
+            if (unityEventKey == null || string.IsNullOrEmpty(unityEventKey.keyName))
+            {
+                Debug.LogError($"InvokeUnityEventNode: The 'unityEventKey' has not been assigned in the editor on node '{name}'.");
+                return Status.Failure;
+            }
+
+            UnityEvent eventToInvoke = blackboard.GetValue<UnityEvent>(unityEventKey.keyName);
+
+            if (eventToInvoke != null)
+            {
+                eventToInvoke.Invoke();
+                return Status.Success;
+            }
+            else
+            {
+                Debug.LogWarning($"InvokeUnityEventNode: Could not find a valid UnityEvent on the blackboard with key '{unityEventKey.keyName}'.");
+                return Status.Failure;
+            }
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

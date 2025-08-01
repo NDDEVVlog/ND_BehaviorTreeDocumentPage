@@ -25,7 +25,9 @@ export default defineConfig({
             sidebar: [
                 {
                     label: 'Update Info',
-                    items: [{ label: 'ChangeLog', link: '/update-info/change-log/', badge: { text: 'New', variant: 'success' } }],
+                    items: [
+                        {label: 'To do list', link: '/update-info/to-do-list' },
+                        {label: 'ChangeLog', link: '/update-info/change-log/', badge: { text: 'New', variant: 'success' } }],
                 },
                 {
                     label: 'Start Here',
@@ -119,7 +121,8 @@ export default defineConfig({
                         {
                             label: 'SpellTech Plugin',
                             items: [
-                                { label: 'Animation Event', link: '/plugins/spelltech/animation-event/' },
+                                { label: 'Dynamic Method Hub', link: '/plugins/spelltech/dynamic-method-hub/' },
+                                { label: 'Custom Helper', link:'/plugins/spelltech/custom-helper/'}
                             ],
                         },
                     ],

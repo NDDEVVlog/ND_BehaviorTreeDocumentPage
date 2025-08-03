@@ -107,8 +107,16 @@ export default defineConfig({
                                                 { label: 'Rotate To Target', link: '/build-in-elements/nodes/auxiliary-nodes/service/rotate-to-target-service/' },
                                             ]
                                         },
-                                        // --- FIX ENDS HERE ---
+                                        
                                     ]
+                                },
+                                {
+                                    label: 'GOAP', // This is just the group label
+                                            items: [
+                                                // The overview page is now the first item in the group
+                                                { label: 'Overview', link: '/build-in-elements/nodes/goap/', badge: { text: 'Updating', variant: 'default' } },
+                                                //{ label: 'Rotate To Target', link: '/build-in-elements/nodes/GOAP/' },
+                                            ]
                                 },
                             ]
                         }
@@ -119,8 +127,11 @@ export default defineConfig({
                     items:[
                         { label: 'Overview', link: '/plugins/overview/' },
                         {
-                            label: 'SpellTech Plugin',
+                            label: 'SpellTech Plugin', // This is now just a group label
+                            // REMOVED: link:'/plugins/spelltech/',
                             items: [
+                                // ADDED: An overview link for the plugin group itself
+                                { label: 'Overview', link: '/plugins/spelltech/' },
                                 { label: 'Dynamic Method Hub', link: '/plugins/spelltech/dynamic-method-hub/' },
                                 { label: 'Custom Helper', link:'/plugins/spelltech/custom-helper/'}
                             ],
@@ -144,7 +155,11 @@ export default defineConfig({
                     link: '/faq/',
                 },
             ],
-            customCss: ['./src/styles/custom.css'],
+            customCss: [
+                './src/styles/custom.css',
+                './src/styles/spelltechBox.css',
+            ],
+
             plugins: [
             ],
         }),

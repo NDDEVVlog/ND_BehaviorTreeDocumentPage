@@ -68,6 +68,7 @@ export default defineConfig({
                                         { label: 'Set Animator Trigger', link: '/build-in-elements/nodes/action-nodes/set-animator-trigger-node/' },
                                         { label: 'Set Boolean Value', link: '/build-in-elements/nodes/action-nodes/set-boolean-value-node/' },
                                         { label: 'Wait', link: '/build-in-elements/nodes/action-nodes/wait-node/' },
+                                        { label: 'SetBlackboardKeyValue' , link: '/build-in-elements/nodes/action-nodes/set-black-board-key-value'}
                                     ],
                                 },
                                 {
@@ -97,6 +98,7 @@ export default defineConfig({
                                                 { label: 'Repeater', link: '/build-in-elements/nodes/auxiliary-nodes/decorator/repeater-node/' },
                                                 { label: 'Succeeder', link: '/build-in-elements/nodes/auxiliary-nodes/decorator/succeeder-node/' },
                                                 { label: 'Time Limit', link: '/build-in-elements/nodes/auxiliary-nodes/decorator/time-limit-node/' },
+                                                
                                             ]
                                         },
                                         {

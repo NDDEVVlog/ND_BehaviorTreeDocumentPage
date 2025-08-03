@@ -1,0 +1,249 @@
+---
+title: Set Blackboard Value Node
+description: A flexible Action node that modifies a value on the Blackboard using different operations.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This is a versatile "host" Action node. By itself, it does nothing; its power comes from the **Operation** you assign to it in the Inspector. Think of it as a Swiss Army knife for setting values on the Blackboard. You add this single node to your tree and then choose whether you want to set a float, set an integer, or even increment a value.
+
+This design allows new "set" operations to be added easily without creating entirely new nodes.
+
+**Path in Editor:** `Action > SetBlackBoardValue`
+
+### Main Node Properties
+
+The node itself has only one property:
+
+| Property             | Type        | Description                                                  |
+| -------------------- | ----------- | ------------------------------------------------------------ |
+| `setBlackBoardValue` | (Operation) | The specific operation to perform (e.g., Set Float, Increment Int). |
+
+### Available Operations
+
+When you add this node in the editor, you must choose one of the following operations from the dropdown menu. Each operation has its own set of properties.
+
+---
+
+#### Set Float Value
+Assigns a specific float value to a key.
+
+| Property     | Type  | Description                                    |
+| ------------ | ----- | ---------------------------------------------- |
+| `floatKey`   | Key   | The Blackboard key (of type `float`) to modify. |
+| `valueToSet` | float | The new float value to set.                    |
+
+---
+
+#### Set Integer Value
+Assigns a specific integer value to a key.
+
+| Property     | Type | Description                                   |
+| ------------ | ---- | --------------------------------------------- |
+| `intKey`     | Key  | The Blackboard key (of type `int`) to modify. |
+| `valueToSet` | int  | The new integer value to set.                 |
+
+---
+
+#### Increment Integer Value
+Reads an integer from the Blackboard, adds a value to it, and writes the result back.
+
+| Property          | Type | Description                                                              |
+| ----------------- | ---- | ------------------------------------------------------------------------ |
+| `intKey`          | Key  | The Blackboard key (of type `int`) to read from and write back to.       |
+| `incrementAmount` | int  | The amount to add to the key's current value. Use a negative number to decrement. |
+
+---
+
+#### Set String Value
+Assigns a specific string value to a key.
+
+| Property      | Type   | Description                                     |
+| ------------- | ------ | ----------------------------------------------- |
+| `stringKey`   | Key    | The Blackboard key (of type `string`) to modify.|
+| `stringValue` | string | The new string value to set.                    |
+
+
+### Behavior
+
+-   **Returns `Success`** if the assigned operation successfully modifies the Blackboard value.
+-   **Returns `Failure`** if the `setBlackBoardValue` operation is not assigned, or if the operation itself fails (e.g., the specified key does not exist or is of the wrong type).
+
+### Example Usage
+**Managing States:** Use `SetStringValue` to change an AI's state, for example, setting a `currentState` key to "Patrolling", "Chasing", or "Searching".
+
+**Creating a Counter:** Use `SetIntValueIncrement` to count how many times a loop has run. For example, in a `Sequence` under a `Repeater` decorator, you could increment a `loopCount` key. A `CheckConditionVariable` decorator could then check if `loopCount` has reached a certain number to exit the loop.
+
+<Tabs>
+<TabItem label="SetBlackboardValue Node">
+```csharp
+
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("SetBlackBoardValue", "Action/SetBlackBoardValue", true, false, iconPath: null)]
+    public class SetBlackBoardValue : ActionNode
+    {   
+        [SerializeReference]
+        public ISetBlackBoardValue setBlackBoardValue;
+
+        protected override Status OnProcess()
+        {
+            if (setBlackBoardValue == null)
+            {
+                Debug.LogWarning("No 'Set Value' operation is assigned in the SetBlackBoardValue node.", this);
+                return Status.Failure;
+            }
+
+            if (blackboard == null)
+            {
+                Debug.LogError("Blackboard is missing from the tree, cannot set value.", this);
+                return Status.Failure;
+            }
+
+            bool success = setBlackBoardValue.TrySetValue(this.ownerTree.Self, this.blackboard);
+            return success ? Status.Success : Status.Failure;
+        }
+    }
+}
+```
+</TabItem>
+<TabItem label="ISetBlackBoardValue (Interface)">
+```csharp
+
+using UnityEngine;
+namespace ND_BehaviorTree
+{
+    public interface ISetBlackBoardValue
+    {
+     public bool TrySetValue(GameObject ownerTree, Blackboard blackboard);
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+## Classes That Inherit from ISetBlackBoardValue
+
+### Set Float Value
+<TabItem label="SetFloatValue">
+```csharp
+
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [System.Serializable]
+    public class SetFloatValue : ISetBlackBoardValue
+    {
+        [Tooltip("The name of the float key on the Blackboard to modify.")]
+        [BlackboardKeyType(typeof(float))]
+        public Key floatKey;
+
+        [Tooltip("The new float value to set.")]
+        public float valueToSet;
+
+        public bool TrySetValue(GameObject ownerTree, Blackboard blackboard)
+        {
+            if (blackboard == null || string.IsNullOrEmpty(floatKey.keyName))
+            {
+                return false;
+            }
+            return blackboard.SetValue<float>(floatKey.keyName, valueToSet);
+        }
+    }
+}
+```
+</TabItem>
+
+### Set Int Value
+<TabItem label="SetIntValue">
+```csharp
+    using UnityEngine;
+        namespace ND_BehaviorTree
+        {
+            [System.Serializable]
+            public class SetIntValue : ISetBlackBoardValue
+            {
+            [Tooltip("The integer key on the Blackboard to modify.")]
+            [BlackboardKeyType(typeof(int))]
+            public Key intKey;
+            [Tooltip("The new integer value to set.")]
+            public int valueToSet;
+
+            public bool TrySetValue(GameObject ownerTree, Blackboard blackboard)
+            {
+                if (blackboard == null || intKey == null)
+                {
+                    return false;
+                }
+                return blackboard.SetValue<int>(intKey.keyName, valueToSet);
+            }
+        }
+    }
+```
+</TabItem>
+
+### Set Int Value Increment
+
+<TabItem label="SetIntValueIncrement">
+```csharp
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [System.Serializable]
+    public class SetIntValueIncrement : ISetBlackBoardValue
+    {   
+        [Tooltip("The integer key on the Blackboard to read from and write to.")]
+        [BlackboardKeyType(typeof(int))]
+        public Key intKey; 
+
+        [Tooltip("The amount to add to the key's current value. Use a negative number to decrement.")]
+        public int incrementAmount = 1;
+
+        public bool TrySetValue(GameObject ownerTree, Blackboard blackboard)
+        {
+            if (blackboard == null || intKey == null)
+            {
+                return false;
+            }
+
+            int currentValue = blackboard.GetValue<int>(intKey.keyName);
+            int newValue = currentValue + incrementAmount;
+            return blackboard.SetValue<int>(intKey.keyName, newValue);
+        }
+    }
+}
+```
+</TabItem>
+
+### Set String Value
+
+<TabItem label="SetStringValue">
+
+<div style={{
+  border: '2px solid var(--sl-color-red-high)',
+  borderRadius: '0.5rem',
+  padding: '1rem',
+  margin: '2rem 0',
+  backgroundColor: 'var(--sl-color-red-low)'
+}}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+    <img 
+      src="https://avatars.githubusercontent.com/u/111946313?v=4" 
+      alt="NDDEVGAME Avatar" 
+      style={{ width: '64px', height: '64px', borderRadius: '50%' }} 
+    />
+    <strong style={{ fontSize: '1.2rem' }}>NDDEVGAME</strong>
+  </div>
+  <div style={{ paddingLeft: 'calc(64px + 1rem)' }}>
+    You know what ? (´。＿。｀) Although AI helped a **lot** in writing these documents, my laziness is making it hard to finish the res.. (#｀-_ゝ-)
+
+    Still, I think you've got the idea behind this node.  
+    I believe in you! ( •̀ ω •́ )✧
+
+  </div>
+</div>
+
+</TabItem>

@@ -1,0 +1,252 @@
+---
+title: Node Gán Giá Trị Blackboard
+description: Node Action linh hoạt cho phép thay đổi giá trị trên Blackboard bằng nhiều thao tác khác nhau.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Đây là một node Action đa năng. Bản thân node này không làm gì cả; sức mạnh của nó nằm ở **Interfaces** bạn chọn trong Inspector. Hãy tưởng tượng nó như một "dao đa năng" để gán giá trị lên Blackboard. Bạn chỉ cần thêm node này vào cây và chọn thao tác muốn thực hiện: gán float, gán int, hoặc tăng giá trị...
+
+Thiết kế này giúp bạn dễ dàng bổ sung các thao tác mới mà không cần tạo node mới hoàn toàn.
+
+**Vị trí trong Editor:** `Action > SetBlackBoardValue`
+
+### Thuộc tính chính của Node
+
+Node này chỉ có một thuộc tính:
+
+| Thuộc tính             | Kiểu        | Mô tả                                                        |
+| ---------------------- | ----------- | ------------------------------------------------------------ |
+| `setBlackBoardValue`   | (Interfaces) | Thao tác cụ thể sẽ thực hiện (ví dụ: Gán Float, Tăng Int...). |
+
+
+![SetBlackBoardValue](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/nodes/setblackboardkeyvalue/SetBlackboardValue.PNG)
+
+
+
+### Các thao tác có sẵn
+
+Khi thêm node này trong editor, bạn phải chọn một thao tác từ menu. Mỗi thao tác có thuộc tính riêng.
+
+![SetBlackBoardValue2](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/nodes/setblackboardkeyvalue/SetBlackboardValue2.PNG)
+
+---
+
+#### Gán giá trị Float
+Gán một giá trị float cho một key.
+
+| Thuộc tính     | Kiểu  | Mô tả                                         |
+| -------------- | ----- | --------------------------------------------- |
+| `floatKey`     | Key   | Key trên Blackboard (kiểu `float`) cần thay đổi. |
+| `valueToSet`   | float | Giá trị float mới sẽ gán.                     |
+
+---
+
+#### Gán giá trị Integer
+Gán một giá trị int cho một key.
+
+| Thuộc tính     | Kiểu | Mô tả                                         |
+| -------------- | ---- | --------------------------------------------- |
+| `intKey`       | Key  | Key trên Blackboard (kiểu `int`) cần thay đổi. |
+| `valueToSet`   | int  | Giá trị int mới sẽ gán.                       |
+
+---
+
+#### Tăng giá trị Integer
+Đọc một giá trị int từ Blackboard, cộng thêm một số và ghi lại kết quả.
+
+| Thuộc tính          | Kiểu | Mô tả                                                              |
+| ------------------- | ---- | ------------------------------------------------------------------ |
+| `intKey`            | Key  | Key trên Blackboard (kiểu `int`) để đọc và ghi lại.                |
+| `incrementAmount`   | int  | Số lượng cộng thêm vào giá trị hiện tại. Dùng số âm để giảm.        |
+
+---
+
+#### Gán giá trị String
+Gán một giá trị string cho một key.
+
+| Thuộc tính      | Kiểu   | Mô tả                                         |
+| --------------- | ------ | --------------------------------------------- |
+| `stringKey`     | Key    | Key trên Blackboard (kiểu `string`) cần thay đổi. |
+| `stringValue`   | string | Giá trị string mới sẽ gán.                    |
+
+### Hành vi
+
+-   **Trả về `Success`** nếu thao tác đã gán thành công thay đổi giá trị trên Blackboard.
+-   **Trả về `Failure`** nếu chưa gán thao tác hoặc thao tác thất bại (ví dụ: key không tồn tại hoặc sai kiểu).
+
+### Ví dụ sử dụng
+**Quản lý trạng thái:** Dùng `SetStringValue` để thay đổi trạng thái AI, ví dụ gán key `currentState` thành "Tuần tra", "Đuổi bắt", hoặc "Tìm kiếm".
+
+**Tạo bộ đếm:** Dùng `SetIntValueIncrement` để đếm số lần lặp. Ví dụ, trong một `Sequence` dưới decorator `Repeater`, bạn có thể tăng key `loopCount`. Decorator `CheckConditionVariable` sẽ kiểm tra nếu `loopCount` đạt số lần nhất định để thoát vòng lặp.
+
+<Tabs>
+<TabItem label="Node SetBlackboardValue">
+```csharp
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("SetBlackBoardValue", "Action/SetBlackBoardValue", true, false, iconPath: null)]
+    public class SetBlackBoardValue : ActionNode
+    {   
+        [SerializeReference]
+        public ISetBlackBoardValue setBlackBoardValue;
+
+        protected override Status OnProcess()
+        {
+            if (setBlackBoardValue == null)
+            {
+                Debug.LogWarning("Chưa gán thao tác 'Set Value' trong node SetBlackBoardValue.", this);
+                return Status.Failure;
+            }
+
+            if (blackboard == null)
+            {
+                Debug.LogError("Không tìm thấy Blackboard trong cây, không thể gán giá trị.", this);
+                return Status.Failure;
+            }
+
+            bool success = setBlackBoardValue.TrySetValue(this.ownerTree.Self, this.blackboard);
+            return success ? Status.Success : Status.Failure;
+        }
+    }
+}
+```
+</TabItem>
+<TabItem label="Giao diện ISetBlackBoardValue">
+```csharp
+using UnityEngine;
+namespace ND_BehaviorTree
+{
+    public interface ISetBlackBoardValue
+    {
+     public bool TrySetValue(GameObject ownerTree, Blackboard blackboard);
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+## Các lớp kế thừa ISetBlackBoardValue
+
+### Gán giá trị Float
+<TabItem label="SetFloatValue">
+```csharp
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [System.Serializable]
+    public class SetFloatValue : ISetBlackBoardValue
+    {
+        [Tooltip("Tên key kiểu float trên Blackboard cần thay đổi.")]
+        [BlackboardKeyType(typeof(float))]
+        public Key floatKey;
+
+        [Tooltip("Giá trị float mới sẽ gán.")]
+        public float valueToSet;
+
+        public bool TrySetValue(GameObject ownerTree, Blackboard blackboard)
+        {
+            if (blackboard == null || string.IsNullOrEmpty(floatKey.keyName))
+            {
+                return false;
+            }
+            return blackboard.SetValue<float>(floatKey.keyName, valueToSet);
+        }
+    }
+}
+```
+</TabItem>
+
+### Gán giá trị Int
+<TabItem label="SetIntValue">
+```csharp
+using UnityEngine;
+namespace ND_BehaviorTree
+{
+    [System.Serializable]
+    public class SetIntValue : ISetBlackBoardValue
+    {
+        [Tooltip("Key kiểu int trên Blackboard cần thay đổi.")]
+        [BlackboardKeyType(typeof(int))]
+        public Key intKey;
+        [Tooltip("Giá trị int mới sẽ gán.")]
+        public int valueToSet;
+
+        public bool TrySetValue(GameObject ownerTree, Blackboard blackboard)
+        {
+            if (blackboard == null || intKey == null)
+            {
+                return false;
+            }
+            return blackboard.SetValue<int>(intKey.keyName, valueToSet);
+        }
+    }
+}
+```
+</TabItem>
+
+### Tăng giá trị Int
+
+<TabItem label="SetIntValueIncrement">
+```csharp
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [System.Serializable]
+    public class SetIntValueIncrement : ISetBlackBoardValue
+    {   
+        [Tooltip("Key kiểu int trên Blackboard để đọc và ghi lại.")]
+        [BlackboardKeyType(typeof(int))]
+        public Key intKey; 
+
+        [Tooltip("Số lượng cộng thêm vào giá trị hiện tại. Dùng số âm để giảm.")]
+        public int incrementAmount = 1;
+
+        public bool TrySetValue(GameObject ownerTree, Blackboard blackboard)
+        {
+            if (blackboard == null || intKey == null)
+            {
+                return false;
+            }
+
+            int currentValue = blackboard.GetValue<int>(intKey.keyName);
+            int newValue = currentValue + incrementAmount;
+            return blackboard.SetValue<int>(intKey.keyName, newValue);
+        }
+    }
+}
+```
+</TabItem>
+
+### Gán giá trị String
+
+<TabItem label="SetStringValue">
+
+<div style={{
+  border: '2px solid var(--sl-color-red-high)',
+  borderRadius: '0.5rem',
+  padding: '1rem',
+  margin: '2rem 0',
+  backgroundColor: 'var(--sl-color-red-low)'
+}}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+    <img 
+      src="https://avatars.githubusercontent.com/u/111946313?v=4" 
+      alt="NDDEVGAME Avatar" 
+      style={{ width: '64px', height: '64px', borderRadius: '50%' }} 
+    />
+    <strong style={{ fontSize: '1.2rem' }}>NDDEVGAME</strong>
+  </div>
+  <div style={{ paddingLeft: 'calc(64px + 1rem)' }}>
+    Bạn biết không? (´。＿。｀) Dù AI đã giúp **rất nhiều** trong việc viết tài liệu này, sự lười của mình vẫn khiến việc hoàn thiện phần còn lại khá khó khăn (#｀-_ゝ-)
+
+    Nhưng mình tin bạn đã hiểu ý tưởng đằng sau node này rồi.  
+    Mình tin bạn sẽ làm được! ( •̀ ω •́ )✧
+
+      </div>
+</div>
+
+</TabItem>

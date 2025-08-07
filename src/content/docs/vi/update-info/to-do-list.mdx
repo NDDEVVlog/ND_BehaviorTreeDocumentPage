@@ -1,0 +1,89 @@
+---
+title: Danh sách cần làm
+description: Những việc cần hoàn thành và kế hoạch phát triển ND_BehaviorTree
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+<div style={{
+  border: '2px solid var(--sl-color-red-high)',
+  borderRadius: '0.5rem',
+  padding: '1rem',
+  margin: '2rem 0',
+  backgroundColor: 'var(--sl-color-red-low)'
+}}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+    <img 
+      src="https://avatars.githubusercontent.com/u/111946313?v=4" 
+      alt="NDDEVGAME Avatar" 
+      style={{ width: '64px', height: '64px', borderRadius: '50%' }} 
+    />
+    <strong style={{ fontSize: '1.2rem' }}>NDDEVGAME</strong>
+  </div>
+  <div style={{ paddingLeft: 'calc(64px + 1rem)' }}>
+    Tui note lại một số thứ cho các bản cập nhật tiếp theo (～￣▽￣)～
+  </div>
+</div>
+
+## ✅ Đã hoàn thành
+
+- ✅ **RequireComponentNode**  
+  Đảm bảo các component tồn tại trước khi thực thi node. Đã tích hợp và ổn định.
+
+- ✅ **Custom Compare Node**  
+  Cho phép chèn logic tùy chỉnh vào node composite điều kiện. Đã xong.
+- ✅**`GetComp<T>` Helper (SpellTech)**  
+  Đơn giản hóa việc tìm component qua self, children, và parent. Đã xong.
+- ✅ **Copy / Paste**  
+  Sao chép hoặc di chuyển lựa chọn giữa các sơ đồ và phiên làm việc.
+
+## 🚧 Đang thực hiện / Kế hoạch
+
+### 🧠 Logic & Behavior Tree
+
+- ⏳ **Set Variable Node**  
+  Thiết lập giá trị cho một key của blackboard từ trong node.
+
+### 🧰 Tiện ích mở rộng & Helper
+
+- ⏳ **Extension Node UI Theme**  
+  Cho phép tùy chỉnh giao diện UIUX của Behavior Tree.
+
+  Cung cấp tài liệu hướng dẫn tạo và tùy chỉnh theme.
+
+### 🔧 Tính năng UX cốt lõi
+
+-  ⏳ ** GOAP System **
+  Hệ thống GOAP tích hợp dưới dạng các node của Behavior Tree. (Đã hoàn thành)
+
+  Thiết kế lại giao diện node GOAP cho rõ ràng và dễ dùng hơn. (Giao diện hiện tại chưa tối ưu.)
+  
+  Cung cấp tài liệu đầy đủ.
+
+- ⏳ **Group**  
+  Nhóm logic các node để tổ chức tốt hơn trong editor.
+
+- ⏳ **SubTree**  
+  Lồng các behavior tree khác vào node để thiết kế hành vi mở rộng.
+
+- ⏳ **Undo / Redo (CTRL+Z / CTRL+Y)**  
+  Thêm chức năng chỉnh sửa an toàn, có thể hoàn tác trong graph editor.
+ 
+### 📖 Tài liệu
+
+- Phiên bản tiếng Việt
+- Tài liệu plugin
+- Tài liệu modding
+
+### 🧪 Demo & Scene
+
+- ⏳ **Example Scene**  
+  Một scene ví dụ với gameplay thực tế kết nối với hệ thống.
+
+### Add-ons
+  Modding UI Framework: 
+  - Node (Đã xong)
+  - Port (Sẽ cập nhật trong tương lai)
+
+---
+
+<small>Lưu ý: Danh sách này sẽ được cập nhật liên tục và có thể thay đổi tùy theo ưu tiên phát triển hoặc lượng cà cà phê ☕.</small>

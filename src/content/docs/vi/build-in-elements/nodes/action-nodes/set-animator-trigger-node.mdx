@@ -1,0 +1,55 @@
+---
+title: Set Animator Trigger Node
+description: Sets a trigger parameter on an Animator component.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This instantaneous Action node finds an `Animator` component via the Blackboard and sets a specified trigger parameter. This is the primary way to trigger attack, flinch, or other one-shot animations.
+
+**Path in Editor:** `Action > Animation > SetAnimatorTrigger`
+
+### Properties
+
+| Property       | Type   | Description                                                        |
+| -------------- | ------ | ------------------------------------------------------------------ |
+| `animatorKey`  | Key    | The Blackboard key for the `Animator` component.                   |
+| `triggerName`  | string | The name of the trigger parameter in the Animator Controller.      |
+
+### Behavior
+
+-   **Returns `Success`** after setting the trigger on a valid `Animator` component.
+-   **Returns `Failure`** if `animatorKey` or `triggerName` is not set, or if the `Animator` component is not found on the Blackboard.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE SetAnimatorTriggerNode.cs ---
+using UnityEngine;
+using ND_BehaviorTree;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Set Animator Trigger", "Action/Animation/SetAnimatorTrigger", true, false)]
+    public class SetAnimatorTriggerNode : ActionNode
+    {
+        [Tooltip("The Blackboard key for the Animator component.")]
+        public Key animatorKey;
+        [Tooltip("The name of the trigger parameter in the Animator Controller to set.")]
+        public string triggerName;
+
+        protected override Status OnProcess()
+        {
+            if (animatorKey == null || string.IsNullOrEmpty(triggerName)) return Status.Failure;
+            Animator animator = blackboard.GetValue<Animator>(animatorKey.keyName);
+            if (animator == null) {
+                Debug.LogWarning($"Animator not found on blackboard key '{animatorKey.keyName}'.");
+                return Status.Failure;
+            }
+            animator.SetTrigger(triggerName);
+            return Status.Success;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

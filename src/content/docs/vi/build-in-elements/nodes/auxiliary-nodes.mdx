@@ -1,0 +1,45 @@
+---
+title: 'Auxiliary Node'
+description: 'Tìm hiểu về hai loại node hỗ trợ: Decorator và Service.'
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+**Auxiliary Node** là các node "hỗ trợ" gắn vào node khác để sửa đổi hoặc bổ trợ hành vi. Đây là nền tảng cho **Decorator** và **Service**. Dù cùng kế thừa từ `AuxiliaryNode`, vai trò của chúng trong cây rất khác nhau.
+
+## Decorator vs. Service
+
+Đây là một trong những khái niệm quan trọng nhất.
+
+<Tabs>
+<TabItem label="Decorator">
+**Decorator** bao ngoài một node con và sửa đổi hành vi của nó. Là một phần của luồng thực thi trực tiếp.
+
+-   **Vai trò:** Kiểm soát luồng. Có thể ngăn nhánh chạy, thay đổi kết quả hoặc lặp lại nhiều lần.
+-   **Thực thi:** Chạy trực tiếp, theo thứ tự cha-con.
+-   **Ví dụ:** Nếu Action là "Tấn công", Decorator có thể biến thành "Tấn công *chỉ khi* máu thấp".
+</TabItem>
+<TabItem label="Service">
+**Service** gắn vào Composite Node và chạy nền. Không nằm trong luồng thực thi trực tiếp.
+
+-   **Vai trò:** Nhiệm vụ nền & quan sát. Dùng để kiểm tra định kỳ và cập nhật Blackboard.
+-   **Thực thi:** Chạy song song với các node con, theo timer.
+-   **Ví dụ:** Xoay người về phía mục tiêu khi di chuyển tới đó.
+</TabItem>
+</Tabs>
+
+---
+
+## So sánh nhanh
+
+| Đặc điểm        | Decorator                                      | Service                                         |
+| -------------- | ---------------------------------------------- | ----------------------------------------------- |
+| **Mục đích**    | Sửa đổi luồng điều khiển                       | Thực hiện nhiệm vụ nền / cập nhật Blackboard     |
+| **Thực thi**    | Trực tiếp, tuần tự                             | Song song, theo timer                           |
+| **Cha**         | Là node con bình thường                        | Gắn vào `CompositeNode`                         |
+| **Giá trị trả về** | Quan trọng, ảnh hưởng logic của cha         | Bị bỏ qua, luôn trả về `Success`                |
+| **Ví dụ phổ biến** | Inverter, Repeater, Cooldown                | Kiểm tra khoảng cách, tìm mục tiêu, theo dõi trạng thái |
+
+<Aside type="tip">
+**Nguyên tắc:** Nếu cần quyết định hoặc thay đổi kết quả của node, dùng **Decorator**. Nếu cần kiểm tra định kỳ và cập nhật AI, dùng **Service**.
+</Aside>

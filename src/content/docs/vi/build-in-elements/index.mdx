@@ -1,0 +1,26 @@
+---
+title: Các Node tích hợp sẵn
+description: Tổng quan về các loại node cốt lõi trong ND_BehaviorTree.
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+Đây là các node có sẵn trong ND_BehaviorTree, là nền tảng để xây dựng hành vi AI phức tạp.
+
+Các node được phân loại theo chức năng trong cây.
+
+<CardGrid>
+    <Card title="Action Node" icon="rocket">
+        Node lá thực hiện các hành động như di chuyển hoặc tấn công.
+        [Xem tất cả Action Node](.vi/action-nodes/)
+    </Card>
+    <Card title="Composite Node" icon="puzzle">
+        Node nhánh kiểm soát luồng thực thi giữa các node con.
+        [Xem tất cả Composite Node](.vi/composite-nodes/)
+    </Card>
+    <Card title="Auxiliary Node" icon="substack">
+        Node bổ trợ (Decorator) và nhiệm vụ nền (Service) giúp sửa đổi hoặc hỗ trợ các node khác.
+        [Xem tất cả Auxiliary Node](.vi/auxiliary-nodes/)
+    </Card>
+
+</CardGrid>

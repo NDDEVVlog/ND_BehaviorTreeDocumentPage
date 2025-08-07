@@ -1,0 +1,68 @@
+---
+title: 'Composite Node'
+description: 'Các node có một hoặc nhiều node con và kiểm soát cách chúng được thực thi.'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+**Composite Node** là các nhánh của cây. Chúng xác định luồng logic bằng cách kiểm soát việc thực thi các node con.
+
+## Sequence
+
+Node **Sequence** thực thi các node con theo thứ tự từ trên xuống dưới. Hoạt động như toán tử **AND**.
+
+-   Dừng và trả về `Failure` ngay khi một node con thất bại.
+-   Chỉ trả về `Success` nếu **tất cả** node con thành công.
+-   Trả về `Running` nếu một node con đang chạy.
+
+**Ví dụ sử dụng:** Chuỗi các bước cần hoàn thành theo thứ tự, như "Đến cửa, mở khóa, mở cửa".
+
+## Selector
+
+Node **Selector** thực thi các node con theo thứ tự từ trên xuống dưới cho đến khi một node thành công. Hoạt động như toán tử **OR**.
+
+-   Dừng và trả về `Success` ngay khi một node con thành công.
+-   Chỉ trả về `Failure` nếu **tất cả** node con thất bại.
+-   Trả về `Running` nếu một node con đang chạy.
+
+**Ví dụ sử dụng:** Thử các hành động khác nhau, như "Tấn công bằng kiếm, nếu thất bại thì dùng phép, nếu vẫn thất bại thì chạy trốn".
+
+## Parallel
+
+Node **Parallel** thực thi tất cả node con cùng lúc. Thành công hoặc thất bại dựa vào chính sách cấu hình.
+
+-   **Behavior:** Tất cả node con đều được tick mỗi frame khi Parallel node hoạt động.
+-   **Thuộc tính:**
+    -   `Success Policy`:
+        -   `Require One`: Thành công khi **một** node con thành công.
+        -   `Require All`: Thành công khi **tất cả** node con thành công.
+    -   `Failure Policy`:
+        -   `Require One`: Thất bại khi **một** node con thất bại.
+        -   `Require All`: Thất bại khi **tất cả** node con thất bại.
+
+**Ví dụ sử dụng:** Vừa di chuyển về phía người chơi vừa liên tục nhìn về phía người chơi.
+
+## Random Selector
+
+Node này chọn ngẫu nhiên **một** node con để thực thi.
+
+-   **Behavior:** Khi chạy lần đầu, chọn một node con ngẫu nhiên và chỉ xử lý node đó. Trạng thái trả về của node con sẽ là trạng thái của Random Selector.
+-   Không thử lại node khác nếu node đã chọn thất bại.
+
+**Ví dụ sử dụng:** Tạo sự bất ngờ cho AI, như "Chọn ngẫu nhiên giữa khiêu khích, né trái hoặc né phải".
+
+## Random Rate Selector
+
+Node này chọn ngẫu nhiên có trọng số giữa các node con, dựa vào giá trị `priority`.
+
+-   **Behavior:** Giống Random Selector nhưng lựa chọn dựa trên trọng số.
+-   **Thuộc tính:**
+    -   `Weighting Mode`:
+        -   `Lower Is Better`: Giá trị priority thấp sẽ có xác suất cao hơn.
+        -   `Higher Is Better`: Giá trị priority cao sẽ có xác suất cao hơn.
+
+**Ví dụ sử dụng:** Boss chọn kỹ năng tấn công, "đấm thường" có priority cao (xác suất thấp), "laser siêu cấp" có priority thấp (xác suất cao), hoặc ngược lại tùy chế độ.
+
+<Aside type="tip">
+**Chọn Composite phù hợp:** Dùng `Sequence` cho logic tuần tự, `Selector` cho lựa chọn, `Parallel` cho hành động đồng thời, và các node Random để tăng tính bất ngờ.
+</Aside>

@@ -1,0 +1,35 @@
+---
+title: 'Debug Node'
+description: 'Các node giúp kiểm tra và debug Behavior Tree của bạn.'
+---
+
+Debug Node không ảnh hưởng đến logic game nhưng rất hữu ích để hiểu cây Behavior Tree đang làm gì khi chạy.
+
+## Log Node
+
+In ra thông báo lên Unity Console. Hữu ích để theo dõi luồng thực thi của cây.
+
+-   **Hành vi:** In thông báo đã cấu hình và trả về `Success`.
+-   **Thuộc tính:**
+    -   `Message`: Chuỗi sẽ in ra console.
+    -   `Log Level`: Loại log (Info, Warning, hoặc Error).
+
+![Ví dụ Log Node trong cây](https://via.placeholder.com/400x150.png/1e222e/ffffff?text=Sequence+->+Log+Node)
+
+## Wait Node
+
+Tạm dừng thực thi nhánh trong một khoảng thời gian. Phù hợp để tạo độ trễ hoặc nhịp cho hành vi AI.
+
+-   **Hành vi:** Trả về `Running` trong thời gian `Duration`. Khi hết thời gian sẽ trả về `Success`.
+-   **Thuộc tính:**
+    -   `Duration`: Thời gian chờ (giây).
+-   **Hiển thị:** Khi đang chạy, node này sẽ hiện thanh tiến trình nhờ thuộc tính `[NodeProgressBar]`.
+
+![Ví dụ Wait Node trong cây](https://via.placeholder.com/400x150.png/1e222e/ffffff?text=Sequence+->+Wait+Node)
+
+## Debug Break Node
+
+Tạm dừng Unity Editor khi thực thi. Rất hữu ích để dừng game tại một điểm cụ thể trong logic cây để kiểm tra trạng thái game object, blackboard và agent.
+
+-   **Hành vi:** Gọi `Debug.Break()` để dừng editor, sau đó trả về `Success`.
+-   **Thuộc tính:** Không

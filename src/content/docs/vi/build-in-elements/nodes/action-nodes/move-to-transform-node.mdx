@@ -1,0 +1,84 @@
+---
+title: Move To Transform Node
+description: Moves a NavMeshAgent to the position of a target Transform stored on the Blackboard.
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+This Action node commands a `NavMeshAgent` to move towards a target `Transform`. It periodically updates the destination to allow for chasing moving targets.
+
+**Path in Editor:** `Action > MoveToTransform`
+
+### Properties
+
+| Property               | Type  | Description                                                                                               |
+| ---------------------- | ----- | --------------------------------------------------------------------------------------------------------- |
+| `agentKey`             | Key   | The Blackboard key for the `NavMeshAgent` component on the AI.                                             |
+| `targetTransformKey`   | Key   | The Blackboard key (of type `Transform`) for the target to move towards.                                  |
+| `updateInterval`       | float | How often, in seconds, to update the destination. `0` means every frame.                                  |
+
+### Behavior
+
+-   **On Enter:** Retrieves the agent and target, then sets the initial destination.
+-   **On Process:**
+    -   **Returns `Failure`** if the agent or target is missing.
+    -   **Returns `Success`** when the agent reaches its destination.
+    -   **Returns `Running`** while the agent is moving towards the target.
+-   **On Exit:** Stops the agent by calling `agent.ResetPath()`.
+
+<Aside type="caution">
+This node requires a `NavMeshAgent` component on your AI and a baked NavMesh in your scene.
+</Aside>
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE MoveToTransformNode.cs ---
+using UnityEngine;
+using UnityEngine.AI;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Move To Transform", "Action/MoveToTransform", true, false)]
+    public class MoveToTransformNode : ActionNode
+    {
+        [Tooltip("The Blackboard key for the NavMeshAgent component on the AI.")]
+        public Key agentKey;
+        [Tooltip("The Blackboard key (of type Transform) for the target to move towards.")]
+        public Key targetTransformKey;
+        [Tooltip("How often, in seconds, to update the agent's destination.")]
+        public float updateInterval = 0.25f;
+        private NavMeshAgent agent;
+        private Transform targetTransform;
+        private float timeSinceLastUpdate = 0f;
+
+        protected override void OnEnter()
+        {
+            if (agentKey != null && blackboard != null) agent = blackboard.GetValue<NavMeshAgent>(agentKey.keyName);
+            if (targetTransformKey != null && blackboard != null) targetTransform = blackboard.GetValue<Transform>(targetTransformKey.keyName);
+            if (agent == null || targetTransform == null) return;
+            agent.SetDestination(targetTransform.position);
+            timeSinceLastUpdate = 0f;
+        }
+
+        protected override Status OnProcess()
+        {
+            if (agent == null || targetTransform == null) return Status.Failure;
+            timeSinceLastUpdate += Time.deltaTime;
+            if (timeSinceLastUpdate >= updateInterval)
+            {
+                agent.SetDestination(targetTransform.position);
+                timeSinceLastUpdate = 0f;
+            }
+            if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance) return Status.Success;
+            return Status.Running;
+        }
+
+        protected override void OnExit()
+        {
+            if (agent != null && agent.hasPath) agent.ResetPath();
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

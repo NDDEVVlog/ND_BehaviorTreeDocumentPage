@@ -1,0 +1,54 @@
+---
+title: Xóa giá trị Blackboard Key
+description: Đặt giá trị của một key trên Blackboard về null, giúp xóa dữ liệu đã lưu.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Node Action này sẽ đặt giá trị của một key trên Blackboard về `null`. Thường dùng để xóa dữ liệu, ví dụ như mục tiêu đã hết hiệu lực hoặc ra khỏi phạm vi.
+
+**Vị trí trong Editor:** `Action > Blackboard > ClearKey`
+
+### Thuộc tính
+
+| Thuộc tính      | Kiểu | Mô tả                                         |
+| --------------- | ---- | --------------------------------------------- |
+| `keyToClear`    | Key  | Key trên Blackboard cần xóa (set về null).    |
+
+### Hành vi
+
+Node này thực thi ngay lập tức.
+-   **Trả về `Success`** nếu `keyToClear` hợp lệ và giá trị được đặt về `null` trên Blackboard.
+-   **Trả về `Failure`** nếu chưa gán `keyToClear`.
+
+### Ví dụ sử dụng
+Sau khi kẻ địch bị tiêu diệt, dùng node này để xóa key `currentTarget` trên Blackboard, giúp AI tìm mục tiêu mới.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE ClearBlackboardKeyNode.cs ---
+using UnityEngine;
+using ND_BehaviorTree;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Clear Blackboard Key", "Action/Blackboard/ClearKey", true, false)]
+    public class ClearBlackboardKeyNode : ActionNode
+    {
+        [Tooltip("The Blackboard key to clear (set to null).")]
+        public Key keyToClear;
+
+        protected override Status OnProcess()
+        {
+            if (keyToClear != null && blackboard != null)
+            {
+                blackboard.SetValue<object>(keyToClear.keyName, null);
+                return Status.Success;
+            }
+            return Status.Failure;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

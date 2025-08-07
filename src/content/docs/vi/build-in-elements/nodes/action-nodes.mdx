@@ -1,0 +1,60 @@
+---
+title: 'Action Node'
+description: 'Action Node là các node lá nơi thực thi logic cụ thể của game.'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+**Action Node** là "node lá" trong Behavior Tree. Đây là nơi thực hiện các hành động cụ thể của nhân vật trong game. Action Node không có node con.
+
+Chúng là "động từ" trong bộ não AI:
+-   `Move To Target`
+-   `Play Animation`
+-   `Attack Enemy`
+-   `Find Cover`
+-   `Say Dialogue Line`
+
+## Chu trình của một Action Node
+
+Khi Action Node được xử lý, nó phải trả về một trong ba trạng thái, quyết định luồng của cây.
+
+-   `Success`: Hành động hoàn thành thành công. (Ví dụ: "Agent đã đến đích.")
+-   `Failure`: Không thể hoàn thành hành động. (Ví dụ: "Không tìm được đường đến đích.")
+-   `Running`: Hành động đang diễn ra và cần thêm thời gian. Cây sẽ tiếp tục thực thi node này ở lần cập nhật tiếp theo. (Ví dụ: "Agent vẫn đang di chuyển trên đường.")
+
+## Tạo Action Node tùy chỉnh
+
+Tất cả logic riêng của game sẽ nằm trong các Action Node tùy chỉnh. Bạn tạo bằng cách kế thừa từ lớp `ActionNode`.
+
+Xem hướng dẫn [Tạo Custom Action Node](/ND_BehaviorTreeDocumentPage/vi/tutorials/custom-action-node/) để biết chi tiết.
+
+Ví dụ mẫu cho một Action Node mới:
+
+```csharp
+using ND_BehaviorTree;
+using UnityEngine;
+
+[NodeInfo("My Custom Action", "Action/MyCustomAction")]
+public class MyCustomActionNode : ActionNode
+{
+    protected override void OnEnter()
+    {
+        Debug.Log("Bắt đầu hành động tùy chỉnh!");
+    }
+
+    protected override Status OnProcess()
+    {
+        // ... thực hiện logic ...
+        return Status.Success;
+    }
+
+    protected override void OnExit()
+    {
+        Debug.Log("Kết thúc hành động tùy chỉnh!");
+    }
+}
+```
+
+<Aside type="note">
+Action Node là cầu nối giữa logic trừu tượng của Behavior Tree và chức năng cụ thể của game engine.
+</Aside>

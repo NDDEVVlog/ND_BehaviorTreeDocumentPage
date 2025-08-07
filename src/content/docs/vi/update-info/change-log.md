@@ -1,12 +1,12 @@
 ---
-title: Change log
-description: Changes in BehaviorTree System
+title: Lịch sử thay đổi
+description: Các thay đổi trong hệ thống BehaviorTree
 ---
 
 # ND_BehaviorTreeVer1.0
-This release version contains the most basic elements in a Graph of Behavior Tree, which are:
+Phiên bản này bao gồm các thành phần cơ bản nhất trong một Graph của Behavior Tree, bao gồm:
 
-- Draw Graph
-- Debug State
-- Create Node
+- Vẽ sơ đồ
+- Debug trạng thái
+- Tạo Node
 - Blackboard

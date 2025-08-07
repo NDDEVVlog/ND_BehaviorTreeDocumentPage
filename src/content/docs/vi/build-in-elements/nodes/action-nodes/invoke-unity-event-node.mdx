@@ -1,0 +1,67 @@
+---
+title: Invoke Unity Event Node
+description: Kích hoạt một UnityEvent được lưu trên Blackboard.
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Node này lấy một đối tượng `UnityEvent` từ Blackboard và kích hoạt nó. Điều này cho phép tách biệt mạnh mẽ: các script khác có thể đăng ký phương thức vào event, và Behavior Tree có thể gọi event đó mà không cần tham chiếu trực tiếp.
+
+**Vị trí trong Editor:** `Action > Events > InvokeUnityEvent`
+
+### Thuộc tính
+
+| Thuộc tính        | Kiểu | Mô tả                                                            |
+| ----------------- | ---- | ---------------------------------------------------------------- |
+| `unityEventKey`   | Key  | Key trên Blackboard (kiểu `UnityEvent`) để lấy và kích hoạt.     |
+
+### Hành vi
+
+-   **Trả về `Success`** nếu tìm thấy UnityEvent hợp lệ trên Blackboard và đã kích hoạt thành công.
+-   **Trả về `Failure`** nếu chưa gán `unityEventKey`, hoặc giá trị trên Blackboard là null hoặc không phải UnityEvent.
+
+<Aside type="note">
+AI hoặc một script quản lý khác phải chịu trách nhiệm tạo UnityEvent và đặt nó lên Blackboard trước khi node này chạy.
+</Aside>
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE InvokeUnityEventNode.cs ---
+using UnityEngine;
+using UnityEngine.Events;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Invoke Unity Event", "Action/Events/InvokeUnityEvent", true, false, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/Event.png")]
+    public class InvokeUnityEventNode : ActionNode
+    {
+        [Tooltip("Key trên Blackboard (kiểu UnityEvent) chứa event cần kích hoạt.")]
+        [BlackboardKeyType(typeof(UnityEvent))]
+        public Key unityEventKey;
+
+        protected override Status OnProcess()
+        {
+            if (unityEventKey == null || string.IsNullOrEmpty(unityEventKey.keyName))
+            {
+                Debug.LogError($"InvokeUnityEventNode: Chưa gán 'unityEventKey' trong editor ở node '{name}'.");
+                return Status.Failure;
+            }
+
+            UnityEvent eventToInvoke = blackboard.GetValue<UnityEvent>(unityEventKey.keyName);
+
+            if (eventToInvoke != null)
+            {
+                eventToInvoke.Invoke();
+                return Status.Success;
+            }
+            else
+            {
+                Debug.LogWarning($"InvokeUnityEventNode: Không tìm thấy UnityEvent hợp lệ trên blackboard với key '{unityEventKey.keyName}'.");
+                return Status.Failure;
+            }
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

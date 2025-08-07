@@ -1,22 +1,18 @@
 ---
 title: Chào mừng đến với ND_BehaviorTree
-description: Một hệ thống Cây Hành Vi mạnh mẽ và trực quan cho Unity.
+description: Một hệ thống Behavior Tree mạnh mẽ và trực quan cho Unity.
 template: splash
 hero:
-  tagline: Tạo AI phức tạp và có tính mô-đun một cách dễ dàng. Bắt đầu trong vài phút!
+  tagline: Tạo AI phức tạp và mô-đun dễ dàng. Bắt đầu chỉ trong vài phút!
   image:
-    # Path updated to be correct for the /vi/ subfolder
     file: ../../../assets/houston.webp
   actions:
-    # Button 1: The main download call-to-action
-    - text: Tải về bản mới nhất (.unitypackage)
-      # Remember to paste your real GitHub link here
-      link: PASTE_YOUR_GITHUB_LINK_HERE
+    - text: Tải bản mới nhất (.unitypackage)
+      link: https://github.com/NDDEVVlog/ND_BehaviorTree/releases/latest
       icon: down-arrow
       variant: primary
-    # Button 2: The primary guide for new users
-    - text: Hướng dẫn Bắt đầu
-      link: /vi/getting-started/installation/
+    - text: Hướng dẫn bắt đầu
+      link: /ND_BehaviorTreeDocumentPage/vi/getting-started/installation/
       icon: right-arrow
 ---
 
@@ -25,16 +21,57 @@ import { Card, CardGrid } from '@astrojs/starlight/components';
 ## Các bước tiếp theo
 
 <CardGrid stagger>
-	<Card title="Cài đặt Gói" icon="puzzle">
-		Làm theo <a href="/vi/getting-started/installation/">hướng dẫn cài đặt</a> để thêm ND_BehaviorTree vào dự án của bạn.
-	</Card>
-	<Card title="Tạo Nút tùy chỉnh" icon="add-document">
-		Học kỹ năng quan trọng nhất: <a href="/vi/tutorials/custom-action-node/">tạo các nút hành động của riêng bạn</a>.
-	</Card>
-	<Card title="Khám phá các Nút có sẵn" icon="open-book">
-		Xem danh sách đầy đủ các nút được tích hợp sẵn để tăng tốc quá trình phát triển của bạn.
-	</Card>
-	<Card title="Cấu hình trang web" icon="setting">
-		Chỉnh sửa `sidebar` và các cấu hình khác trong tệp `astro.config.mjs`.
-	</Card>
+    <Card title="Cài đặt Package" icon="puzzle">
+        Làm theo [hướng dẫn cài đặt](/ND_BehaviorTreeDocumentPage/vi/getting-started/installation/) để thêm ND_BehaviorTree vào dự án của bạn.
+    </Card>
+    <Card title="Tạo Custom Node" icon="add-document">
+        Học kỹ năng quan trọng nhất: [tạo Action Node của riêng bạn](/ND_BehaviorTreeDocumentPage/vi/tutorials/custom-action-node/).
+    </Card>
+    <Card title="Khám phá các Node tích hợp" icon="open-book">
+        Xem danh sách đầy đủ các Node có sẵn để tăng tốc phát triển.
+    </Card>
+    <Card title="Liên hệ" icon="email">
+        Có câu hỏi hoặc muốn tham gia cộng đồng? [Tìm cách liên hệ phù hợp](/ND_BehaviorTreeDocumentPage/vi/contact/).
+    </Card>
 </CardGrid>
+
+{/* --- Start of new community section --- */}
+
+<div class="community-section">
+    ## Tham gia cộng đồng
+    <p>
+        Dự án này được xây dựng và cải tiến bởi cộng đồng các lập trình viên. Xin cảm ơn tất cả mọi người đã đóng góp thời gian và ý tưởng!
+    </p>
+    
+    <div class="contributor-avatars">
+        {/* Contributor 1: NDDEVGAME */}
+        <a href="https://github.com/NDDEVVlog" target="_blank" class="contributor-link" title="NDDEVGAME (Creator)">
+            <img 
+              src="https://avatars.githubusercontent.com/u/111946313?v=4" 
+              alt="Avatar of NDDEVGAME" class="contributor-avatar-small" 
+            />
+        </a>
+        
+        {/* Contributor 2: SORATHEDEV */}
+        <a href="https://www.youtube.com/@sorathedev6739?sub_confirmation=1" target="_blank" class="contributor-link" title="SORATHEDEV">
+            <img 
+              src="https://yt3.googleusercontent.com/aB12z1ljA_mgh8God8jLt8VZ6W_SCBcxZ4_0ctOogUyaE4WgPXHo2BjgV9ZbV6frEppP6QCS=s160-c-k-c0x00ffffff-no-rj" 
+              alt="Avatar of Sora" class="contributor-avatar-small" 
+            />
+        </a>
+
+        {/* Contributor 3: Saki Toshimiya */}
+        <a href="https://github.com/Sakitoshimiya" target="_blank" class="contributor-link" title="Saki Toshimiya">
+            <img 
+              src="https://avatars.githubusercontent.com/u/166310923?v=4" 
+              alt="Avatar of Saki" class="contributor-avatar-small" 
+            />
+        </a>
+    </div>
+    
+    <a href="/ND_BehaviorTreeDocumentPage/vi/license-contribution/#how-to-contribute" class="sl-button sl-button--secondary">
+        Trở thành người đóng góp
+    </a>
+</div>
+
+{/* --- End of new community section --- */}

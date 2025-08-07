@@ -1,0 +1,81 @@
+---
+title: Find Target Node
+description: Searches for the closest game object with a specific tag within a radius and stores it on the Blackboard.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+This Action node performs a physics-based search to find the nearest target. It's essential for AI perception.
+
+**Path in Editor:** `Action > Perception > FindTarget`
+
+### Properties
+
+| Property         | Type      | Description                                                        |
+| ---------------- | --------- | ------------------------------------------------------------------ |
+| `targetTag`      | string    | The tag of the object to find (e.g., "Player").                    |
+| `searchRadius`   | float     | The radius to search within, centered on the AI.                   |
+| `targetKey`      | Key       | The Blackboard key (of type `Transform`) to store the found target. |
+| `searchLayer`    | LayerMask | The layer mask to use for the physics check.                       |
+
+### Behavior
+
+-   **Returns `Success`** if a collider with the matching `targetTag` is found within the `searchRadius`. The `Transform` of the closest match is stored in the `targetKey` on the Blackboard.
+-   **Returns `Failure`** if no matching target is found, or if `targetKey` is not assigned. If a target was previously stored, its value on the blackboard is set to `null`.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE FindTargetNode.cs ---
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Find Target", "Action/Perception/FindTarget", true, false)]
+    public class FindTargetNode : ActionNode
+    {
+        [Tooltip("The tag of the object to find (e.g., 'Player').")]
+        public string targetTag = "Player";
+        [Tooltip("The radius to search within.")]
+        public float searchRadius = 10.0f;
+        [Tooltip("The Blackboard key (of type Transform) to store the found target.")]
+        public Key targetKey;
+        [Tooltip("The layer mask to use for the physics check.")]
+        public LayerMask searchLayer;
+
+        protected override Status OnProcess()
+        {
+            if (targetKey == null) return Status.Failure;
+
+            Collider[] colliders = Physics.OverlapSphere(ownerTree.Self.transform.position, searchRadius, searchLayer);
+            Transform closestTarget = null;
+            float closestDistanceSqr = float.MaxValue;
+
+            foreach (var collider in colliders)
+            {
+                if (collider.CompareTag(targetTag))
+                {
+                    float sqrDistance = (collider.transform.position - ownerTree.Self.transform.position).sqrMagnitude;
+                    if (sqrDistance < closestDistanceSqr)
+                    {
+                        closestDistanceSqr = sqrDistance;
+                        closestTarget = collider.transform;
+                    }
+                }
+            }
+
+            if (closestTarget != null)
+            {
+                blackboard.SetValue<Transform>(targetKey.name, closestTarget);
+                return Status.Success;
+            }
+
+            blackboard.SetValue<Transform>(targetKey.name, null);
+            return Status.Failure;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

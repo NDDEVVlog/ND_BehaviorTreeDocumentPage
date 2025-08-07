@@ -112,14 +112,16 @@ export default defineConfig({
                                         
                                     ]
                                 },
-                                {
-                                    label: 'GOAP', // This is just the group label
-                                            items: [
-                                                // The overview page is now the first item in the group
-                                                { label: 'Overview', link: '/build-in-elements/nodes/goap/', badge: { text: 'Updating', variant: 'default' } },
-                                                //{ label: 'Rotate To Target', link: '/build-in-elements/nodes/GOAP/' },
-                                            ]
-                                },
+                                
+                            ]
+                        },
+                        {
+                            label: 'Attributes',
+                            items: [
+                                { label: 'Overview', link: '/build-in-elements/attributes/' },
+                                // Add more attribute items here as needed
+                                // Example:
+                                // { label: 'Blackboard Attribute', link: '/build-in-elements/attributes/blackboard-attribute/' },
                             ]
                         }
                     ],
@@ -135,7 +137,15 @@ export default defineConfig({
                                 // ADDED: An overview link for the plugin group itself
                                 { label: 'Overview', link: '/plugins/spelltech/' },
                                 { label: 'Dynamic Method Hub', link: '/plugins/spelltech/dynamic-method-hub/' },
-                                { label: 'Custom Helper', link:'/plugins/spelltech/custom-helper/'}
+                                { label: 'Custom Helper', link:'/plugins/spelltech/custom-helper/'},
+                                {
+                                    label: 'GOAP', // This is just the group label
+                                            items: [
+                                                // The overview page is now the first item in the group
+                                                { label: 'Overview', link: '/plugins/spelltech/goap/', badge: { text: 'Updating', variant: 'default' } },
+                                                //{ label: 'Rotate To Target', link: '/build-in-elements/nodes/GOAP/' },
+                                            ]
+                                },
                             ],
                         },
                     ],

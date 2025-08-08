@@ -1,24 +1,24 @@
 ---
 title: Set Animator Trigger Node
-description: Sets a trigger parameter on an Animator component.
+description: Đặt trigger parameter trên Animator component.
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-This instantaneous Action node finds an `Animator` component via the Blackboard and sets a specified trigger parameter. This is the primary way to trigger attack, flinch, or other one-shot animations.
+Action node tức thì này tìm `Animator` component thông qua Blackboard và đặt một trigger parameter được chỉ định. Đây là cách chính để trigger attack, flinch, hoặc các animation một lần khác.
 
-**Path in Editor:** `Action > Animation > SetAnimatorTrigger`
+**Đường dẫn trong Editor:** `Action > Animation > SetAnimatorTrigger`
 
-### Properties
+### Thuộc tính
 
-| Property       | Type   | Description                                                        |
-| -------------- | ------ | ------------------------------------------------------------------ |
-| `animatorKey`  | Key    | The Blackboard key for the `Animator` component.                   |
-| `triggerName`  | string | The name of the trigger parameter in the Animator Controller.      |
+| Thuộc tính      | Type   | Mô tả                                                          |
+| -------------- | ------ | --------------------------------------------------------------- |
+| `animatorKey`  | Key    | Blackboard key cho `Animator` component.                       |
+| `triggerName`  | string | Tên của trigger parameter trong Animator Controller.            |
 
-### Behavior
+### Hành vi
 
--   **Returns `Success`** after setting the trigger on a valid `Animator` component.
--   **Returns `Failure`** if `animatorKey` or `triggerName` is not set, or if the `Animator` component is not found on the Blackboard.
+-   **Trả về `Success`** sau khi đặt trigger trên `Animator` component hợp lệ.
+-   **Trả về `Failure`** nếu `animatorKey` hoặc `triggerName` không được đặt, hoặc nếu `Animator` component không tìm thấy trên Blackboard.
 
 <Tabs>
 <TabItem label="C# Code">

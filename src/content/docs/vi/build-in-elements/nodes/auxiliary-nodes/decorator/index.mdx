@@ -1,0 +1,46 @@
+---
+title: Tổng quan Decorators
+description: Tổng quan về Decorator Nodes, bọc một child duy nhất để sửa đổi hành vi của nó.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+## Tổng quan
+
+**Decorator Nodes** là một loại Auxiliary Node chỉ có thể có một child. Mục đích của chúng là sửa đổi hành vi hoặc kết quả của child node mà chúng chứa. Chúng là một phần của luồng thực thi chính của tree.
+
+Ví dụ, một decorator có thể:
+- **Đảo ngược** kết quả của child của nó (`Success` trở thành `Failure`).
+- **Lặp lại** child của nó một số lần nhất định.
+- **Chặn** thực thi của child cho đến khi một điều kiện được đáp ứng.
+- **Áp đặt giới hạn thời gian** cho việc thực thi của child.
+
+### Khái niệm cốt lõi
+- **Single Child:** Một decorator luôn có chính xác một child node.
+- **Modify Behavior:** Nó chặn lời gọi đến child và/hoặc trạng thái được trả về bởi nó để thay đổi luồng.
+- **Conditional Logic:** Nhiều decorator được sử dụng để thêm các kiểm tra điều kiện vào một nhánh của tree.
+
+<Tabs>
+<TabItem label="C# Base Class">
+```csharp
+// --- START OF FILE DecoratorNode.cs ---
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    public abstract class DecoratorNode : AuxiliaryNode
+    {
+        public override Node Clone()
+        {
+            DecoratorNode node = base.Clone() as DecoratorNode;
+            node.child = null;
+            return node;
+        }
+
+        protected override void OnEnter() { }
+        protected override void OnExit() { }
+    }
+}
+```
+</TabItem>
+</Tabs>

@@ -1,0 +1,197 @@
+---
+title: Custom Helper
+description: Hướng dẫn sử dụng các phương thức mở rộng CustomHelper để tìm Unity components dễ dàng hơn.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+`CustomHelper` là một class tĩnh chứa phương thức mở rộng tiện lợi, `GetComp<T>`, được thiết kế để đơn giản hóa quá trình tìm components trong dự án Unity của bạn.
+
+<div style={{
+  border: '2px solid var(--sl-color-accent-high)',
+  borderRadius: '0.5rem',
+  padding: '1rem',
+  margin: '2rem 0',
+  backgroundColor: 'var(--sl-color-accent-low)'
+}}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+    <img 
+      src="https://yt3.googleusercontent.com/aB12z1ljA_mgh8God8jLt8VZ6W_SCBcxZ4_0ctOogUyaE4WgPXHo2BjgV9ZbV6frEppP6QCS=s160-c-k-c0x00ffffff-no-rj" 
+      alt="Sora the Dev Avatar" 
+      style={{ width: '64px', height: '64px', borderRadius: '50%' }} 
+    />
+    <strong style={{ fontSize: '1.2rem' }}>Sora the Dev</strong>
+  </div>
+  <div style={{ paddingLeft: 'calc(64px + 1rem)' }}>
+    Bạn ngại phải xác định vị trí lụm component ? Ngại phải sửa code mỗi lần setup lại ? Đây, cầm lấy mánh này mà xài
+  </div>
+</div>
+
+## Vấn đề là gì?
+
+Trong Unity, bạn thường cần lấy tham chiếu đến một component có thể không nằm trên cùng một `GameObject`. Cách tiêu chuẩn để làm điều này liên quan đến một pattern dài dòng và lặp lại:
+
+```csharp
+// Cách cũ, dài dòng
+Rigidbody rb = GetComponent<Rigidbody>();
+if (rb == null)
+{
+    rb = GetComponentInChildren<Rigidbody>();
+}
+if (rb == null)
+{
+    rb = GetComponentInParent<Rigidbody>();
+}
+
+if (rb != null)
+{
+    // Làm gì đó với Rigidbody
+}
+```
+
+Pattern này cồng kềnh và thêm những dòng không cần thiết vào scripts của bạn.
+
+## Giải pháp: `GetComp<T>`
+
+`CustomHelper` giới thiệu một phương thức mở rộng `GetComp<T>` giúp đơn giản hóa quá trình này thành một dòng code sạch sẽ.
+
+### Cách hoạt động
+
+Phương thức `GetComp<T>` tìm kiếm component theo thứ tự cụ thể:
+
+1. Trên `GameObject` chính (`GetComponent<T>`)
+2. Trong bất kỳ children nào (`GetComponentInChildren<T>`)
+3. Trong bất kỳ parents nào (`GetComponentInParent<T>`)
+
+Nó trả về component đầu tiên tìm thấy. Nếu không tìm thấy component nào sau khi kiểm tra cả ba vị trí, nó trả về `null`.
+
+## Cách sử dụng
+
+Đầu tiên, đảm bảo bạn đang sử dụng namespace đúng:
+
+```csharp
+using SpellTech.SoraExtensions;
+```
+
+Bây giờ bạn có thể gọi `GetComp<T>` trực tiếp trên bất kỳ `MonoBehaviour` hoặc `GameObject` nào.
+
+### Ví dụ
+
+```csharp
+using UnityEngine;
+using SpellTech.SoraExtensions; // Đừng quên cái này!
+
+public class PlayerController : MonoBehaviour
+{
+    private Rigidbody rb;
+
+    void Start()
+    {
+        // Cách mới, ngắn gọn!
+        rb = this.GetComp<Rigidbody>(); 
+        // Hoặc trực tiếp trên gameObject
+        // rb = gameObject.GetComp<Rigidbody>();
+
+        if (rb != null)
+        {
+            Debug.Log("Tìm thấy Rigidbody!");
+        }
+        else
+        {
+            Debug.LogError("Không thể tìm thấy Rigidbody trên object này, children hoặc parents của nó.");
+        }
+    }
+}
+```
+
+<Aside type="tip">
+Vì `GetComp<T>` là một phương thức mở rộng cho cả `MonoBehaviour` và `GameObject`, bạn có thể sử dụng `this.GetComp<T>()` từ trong một `MonoBehaviour` hoặc `someGameObject.GetComp<T>()` từ bất kỳ script nào khác.
+</Aside>
+
+## Script đầy đủ
+
+Chỉ cần bao gồm script này trong dự án Unity của bạn dưới `SpellTech/SoraExtensions/CustomHelper.cs`.
+
+```csharp title="SpellTech/SoraExtensions/CustomHelper.cs"
+using UnityEngine;
+
+namespace SpellTech.SoraExtensions
+{
+    public static class CustomHelper
+    {
+        // Extension cho MonoBehaviour
+        public static T GetComp<T>(this MonoBehaviour monoBehaviour) where T : Component
+        {
+            return monoBehaviour.gameObject.GetComp<T>();
+        }
+
+        // Extension cho GameObject
+        public static T GetComp<T>(this GameObject gameObject) where T : Component
+        {
+            T component = gameObject.GetComponent<T>();
+            if (component == null)
+            {
+                component = gameObject.GetComponentInChildren<T>();
+            }
+
+            if (component == null)
+            {
+                component = gameObject.GetComponentInParent<T>();
+            }
+            return component;
+        }
+    }
+}
+```
+
+## Cách sử dụng trong ND_BehaviorTree
+
+```csharp title="SpellTech/SoraExtensions/DynamicMethodHubComponentNode.cs"
+using UnityEngine;
+using ND_BehaviorTree;
+using UnityEditor.UI;
+using SpellTech.DynamicMethodEvent;
+
+[RequireComponentInRunner(typeof(MethodHub))]
+[NodeInfo("Dynamic Method Hub Component Node", "Action/DynamicMethodHubComponentNode", true, false,iconPath:null)]
+public class DynamicMethodHubComponentNode : ActionNode
+{
+    [Tooltip("An example float parameter.")]
+    public string eventID;
+
+    [BlackboardKeyType(typeof(string))]
+    public Key eventIDKey;
+
+    MethodHub animationEventHub;
+    protected override void OnEnter()
+    {   
+        //Đơn giản và nhanh. Vâng thưa ông
+        animationEventHub = SpellTech.SoraExtensions.CustomHelper.GetComp<MethodHub>(ownerTree.Self);
+    }
+
+    protected override Status OnProcess()
+    {
+
+        if (eventIDKey != null)
+        {   
+
+            string i = blackboard.GetValue<string>(eventIDKey.keyName);
+            animationEventHub.TriggerEvent(i);
+            return Status.Success;
+        }
+
+        animationEventHub.TriggerEvent(eventID);
+        return Status.Success;
+
+    }
+
+}
+```
+
+<Aside type="tip">
+Chú ý việc sử dụng `ownerTree.Self`. Trong ND_BehaviorTree, thuộc tính này cho bạn tham chiếu trực tiếp đến `GameObject` đang chạy instance cụ thể của behavior tree này, làm cho nó trở thành target hoàn hảo cho `GetComp<T>`.
+</Aside>
+
+---
+
+Cần một biến thể ném exception nếu không tìm thấy component? Muốn một phiên bản cache kết quả? Hãy cho tôi biết!

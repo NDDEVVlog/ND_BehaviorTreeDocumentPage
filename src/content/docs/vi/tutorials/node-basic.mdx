@@ -1,0 +1,206 @@
+---
+title: Cơ bản về Node
+description: Hiểu về khối xây dựng cơ bản của hệ thống ND_BehaviorTree, lớp Node.
+---
+import { Card, CardGrid, Aside, Code } from '@astrojs/starlight/components';
+
+Mọi phần tử bạn đặt trong đồ thị Behavior Tree—từ một sequence phức tạp đến một action đơn giản—đều là một **Node**. Lớp `Node` là lớp cơ sở `abstract` nền tảng mà tất cả các loại node khác được kế thừa từ đó. Hiểu về cấu trúc và vòng đời của nó là chìa khóa để làm chủ hệ thống này.
+
+Hãy nghĩ về nó như `MonoBehaviour` của thế giới Behavior Tree. Bạn không sử dụng nó trực tiếp, nhưng bạn xây dựng mọi thứ trên nó.
+
+## Vòng đời của Node
+
+Khi một Behavior Tree chạy, nó "ticks" hoặc xử lý các node của nó. Mỗi node tuân theo một vòng đời cụ thể, có thể dự đoán được, được quản lý bởi phương thức `Process()` của nó.
+
+<CardGrid>
+	<Card title="1. OnEnter()" icon="play-circle">
+		Được gọi **một lần** khi node được kích hoạt lần đầu tiên. Đây là nơi hoàn hảo cho bất kỳ logic thiết lập nào, như khởi tạo biến, cache components, hoặc bắt đầu timer.
+	</Card>
+	<Card title="2. OnProcess()" icon="sync">
+		Được gọi **mỗi tick** miễn là node đang hoạt động (tức là, nó trước đó trả về `Status.Running`). Đây là nơi logic chính của node của bạn tồn tại. Nó phải trả về một `Status` để nói cho tree biết phải làm gì tiếp theo.
+	</Card>
+	<Card title="3. OnExit()" icon="stop-circle">
+		Được gọi **một lần** khi node ngừng xử lý, hoặc vì nó trả về `Status.Success` hoặc `Status.Failure`. Sử dụng điều này để dọn dẹp, như dừng timers hoặc reset state.
+	</Card>
+</CardGrid>
+
+<Aside>
+Phương thức `Process()` điều phối vòng đời này. Bạn sẽ không gọi `OnEnter`, `OnProcess`, hoặc `OnExit` trực tiếp; tree xử lý điều này cho bạn. Công việc của bạn là điền logic cho ba phương thức đó khi tạo custom nodes.
+</Aside>
+
+## Trạng thái thực thi
+
+Mỗi khi phương thức `OnProcess()` của một node được gọi, nó phải trả về một trong ba trạng thái có thể. Trạng thái này thông báo cho node cha biết cách tiếp tục.
+
+-   **`Status.Success`**: Node đã hoàn thành tác vụ của nó thành công.
+-   **`Status.Failure`**: Node thất bại trong việc hoàn thành tác vụ của nó.
+-   **`Status.Running`**: Node vẫn đang làm việc và cần thêm thời gian. Tree sẽ gọi phương thức `OnProcess()` của nó lại trên tick tiếp theo.
+
+Hệ thống `Success`/`Failure` này là cách tree đưa ra quyết định và chuyển từ một nhánh sang nhánh khác.
+
+## Thuộc tính và phương thức cốt lõi
+
+Đây là phân tích các thành viên quan trọng nhất của lớp `Node.cs`.
+
+### Thuộc tính
+
+| Thuộc tính      | Type            | Mô tả                                                                                                                 |
+| :------------ | :-------------- | :-------------------------------------------------------------------------------------------------------------------------- |
+| `ownerTree`   | `BehaviorTree`  | Tham chiếu runtime đến instance `BehaviorTree` mà node này thuộc về. Quan trọng để truy cập các components được chia sẻ.           |
+| `blackboard`  | `Blackboard`    | Một shortcut tiện lợi đến `ownerTree.blackboard`. Được sử dụng để đọc từ và ghi vào bộ lưu trữ dữ liệu được chia sẻ của tree.         |
+| `status`      | `Status`        | Trạng thái thực thi hiện tại của node (`Success`, `Failure`, hoặc `Running`).                                              |
+| `priority`    | `int`           | Được sử dụng bởi một số composite nodes (như Priority Selector) để xác định thứ tự thực thi. Số cao hơn có nghĩa là priority cao hơn. |
+| `id`          | `string`        | Một GUID duy nhất cho node, được sử dụng nội bộ bởi editor để lưu và liên kết.                                           |
+| `position`    | `Rect`          | Vị trí của node trên đồ thị editor Behavior Tree.                                                                      |
+
+### Phương thức
+
+#### Phương thức vòng đời (Bạn ghi đè những cái này)
+
+-   `protected abstract Status OnProcess()`
+    Trái tim của node của bạn. Bạn **phải** implement phương thức này trong custom nodes của bạn. Nó chứa logic chạy mỗi tick và phải trả về `Success`, `Failure`, hoặc `Running`.
+
+-   `protected virtual void OnEnter()`
+    Ghi đè điều này cho logic thiết lập. Nó được gọi trước `OnProcess()` đầu tiên.
+
+-   `protected virtual void OnExit()`
+    Ghi đè điều này cho logic dọn dẹp. Nó được gọi sau khi node trả về `Success` hoặc `Failure`.
+
+#### Phương thức cốt lõi (Được quản lý bởi hệ thống)
+
+-   `public Status Process()`
+    Đây là điểm vào chính được gọi bởi node cha hoặc chính tree. Nó quản lý luồng `OnEnter`/`OnProcess`/`OnExit` và không nên được ghi đè hoặc gọi trực tiếp.
+
+-   `public virtual Node Clone()`
+    Tạo một instance runtime của node. Điều này cần thiết vì Behavior Tree asset của bạn là một template. Tại runtime, tree được clone để mỗi agent có instance duy nhất của riêng nó với state riêng.
+
+-   `public virtual void Reset()`
+    Reset trạng thái xử lý nội bộ của node. Điều này hữu ích nếu một nhánh của tree bị hủy bỏ.
+
+## Script `Node.cs`
+
+Đây là script cơ sở `Node.cs` đầy đủ để tham khảo.
+
+<Code lang="cs" title="ND_BehaviorTree/Node.cs" code={`
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    public abstract class Node : ScriptableObject
+    {
+        
+        /// <summary>
+        /// A reference to the BehaviorTree instance that owns this node.
+        /// This is set at runtime when the tree is cloned. It is not serialized.
+        /// </summary>
+        [System.NonSerialized] public BehaviorTree ownerTree;
+
+        /// <summary>
+        /// A convenience property to get the Blackboard associated with this node's owner tree.
+        /// Returns null if the node is not part of a tree at runtime.
+        /// </summary>
+        public Blackboard blackboard => ownerTree?.blackboard;
+      
+
+        public enum Status { Success, Failure, Running }
+
+        // Runtime state. [NonSerialized] ensures it's not saved to the asset file.
+        public Status status { get; protected set; } = Status.Failure;
+        [NonSerialized] private bool _isProcessing = false;
+
+        // Editor data
+        [SerializeField] private string m_guid;
+        [SerializeField] private Rect m_position;
+        public string typeName;
+
+        public  int priority = 0;
+
+        public string id => m_guid;
+        public Rect position { get => m_position; set => m_position = value; }
+
+        public Node()
+        {
+            if (string.IsNullOrEmpty(m_guid))
+            {
+                m_guid = Guid.NewGuid().ToString();
+            }
+        }
+
+        public Status Process()
+        {
+            if (!_isProcessing)
+            {
+                OnEnter();
+                _isProcessing = true;
+            }
+
+            status = OnProcess();
+
+            if (status != Status.Running)
+            {
+                OnExit();
+                _isProcessing = false;
+            }
+            return status;
+        }
+
+        public virtual void Reset()
+        {
+            _isProcessing = false;
+            status = Status.Failure;
+        }
+
+        public virtual Node Clone()
+        {
+            Node clone = Instantiate(this);
+            clone.name = this.name;
+            return clone;
+        }
+
+        protected virtual void OnEnter() { }
+        protected virtual void OnExit() { }
+        protected abstract Status OnProcess();
+
+        // --- Child Management ---
+        public virtual void AddChild(Node child) { }
+        public virtual void RemoveChild(Node child) { }
+        public virtual List<Node> GetChildren() => new List<Node>();
+
+        // --- Editor-only methods ---
+        public void SetPosition(Rect newPosition) => m_position = newPosition;
+        public void SetNewID(string newID) => m_guid = newID;
+
+        // This is for further update
+        public Action InteruptAction;
+    }
+}
+`} />
+
+## Các danh mục Node cốt lõi
+
+Trong khi `Node` là lớp cơ sở abstract, bạn sẽ không bao giờ sử dụng nó trực tiếp trong đồ thị của mình. Thay vào đó, bạn sẽ làm việc với ba danh mục chính của nodes kế thừa từ nó. Mỗi danh mục phục vụ một mục đích riêng biệt trong cấu trúc và logic của Behavior Tree của bạn.
+
+| Danh mục Node      | Mô tả ngắn gọn                                                                                                | Thông tin thêm                                                       |
+| :----------------- | :--------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------ |
+| **Composite Node** | Những nodes này là các nhánh của tree của bạn. Chúng chứa và thực thi một danh sách child nodes theo một quy tắc cụ thể (ví dụ: theo sequence hoặc theo priority). | [Đọc về Composite Nodes](/ND_BehaviorTreeDocumentPage/vi/build-in-elements/nodes/composite-nodes/)   |
+| **Auxiliary Node** | Những nodes này gắn vào các nodes khác để sửa đổi hành vi của chúng. Danh mục này bao gồm **Decorators** (thay đổi kết quả hoặc hoạt động như condition checker) và **Services** (chạy trong nền). | [Đọc về Auxiliary Nodes](/ND_BehaviorTreeDocumentPage/vi/build-in-elements/nodes/auxiliary-nodes/)   |
+| **Action Node**    | Đây là những lá của tree của bạn. Chúng thực hiện công việc thực tế của AI của bạn, như di chuyển một character, tấn công enemy, hoặc kiểm tra một condition. Chúng không có children. | [Đọc về Action Nodes](/ND_BehaviorTreeDocumentPage/vi/build-in-elements/nodes/action-nodes/)         |
+
+Hiểu về ba danh mục này là bước đầu tiên để thiết kế Behavior Trees hiệu quả và dễ đọc. Các tutorial tiếp theo sẽ chỉ cho bạn cách kết hợp chúng để tạo ra hành vi thông minh.
+
+
+## Node trong editor
+
+Trong ND_BehaviorTree, Node được mô tả như: 
+![Create Blackboard](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/Node.png)
+
+Double click vào node sẽ mở `NodeEditor` của nó để xem và sửa đổi:
+| Biến     | Mô tả ngắn gọn                               | Khả năng hiển thị                                                        |
+| :-------------| :-----------------------------------------------| :------------------------------------------------------------------------ |
+|***Display Name***| Thiết lập tên hiển thị được hiển thị trên node.          | Luôn hiển thị và có thể chỉnh sửa                                                |
+|***Priority ***| Được sử dụng trong các node cụ thể như RandomRateSelector để xác định priority thực thi. Điều này sẽ được mở rộng cho chức năng tương lai. | Luôn hiển thị và có thể điều chỉnh  |
+|*** Public Variable*** | Tất cả các trường public được khai báo trong script sẽ được hiển thị và có thể chỉnh sửa trong editor.| Tự động hiển thị theo mặc định và có thể chỉnh sửa|
+
+![Create Blackboard](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/DebugLogPropertyNode.png)

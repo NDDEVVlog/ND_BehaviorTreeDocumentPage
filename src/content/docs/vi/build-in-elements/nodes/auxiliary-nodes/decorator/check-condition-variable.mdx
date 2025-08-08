@@ -1,0 +1,59 @@
+---
+title: Check Condition Variable
+description: Kiểm tra giá trị boolean trên Blackboard và chỉ chạy child của nó nếu điều kiện được đáp ứng.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Decorator này hoạt động như một người gác cổng cho child branch của nó. Nó kiểm tra giá trị boolean từ Blackboard và sẽ chỉ thực thi child của nó nếu điều kiện vượt qua.
+
+**Đường dẫn trong Editor:** `Decorator > CheckConditionVariable`
+
+### Thuộc tính
+
+| Thuộc tính       | Type  | Mô tả                                                          |
+| ---------------- | ----- | --------------------------------------------------------------- |
+| `conditionKey`   | Key   | Blackboard key (của type `bool`) để kiểm tra.                  |
+| `shouldInvert`   | bool  | Nếu `true`, kết quả bị đảo ngược. Child chạy nếu key là `false`. |
+
+### Hành vi
+
+-   Nó kiểm tra giá trị boolean của `conditionKey` trên Blackboard.
+-   Nếu điều kiện vượt qua (tính đến `shouldInvert`), nó sẽ thực thi child node của nó và trả về trạng thái của child (`Success`, `Failure`, hoặc `Running`).
+-   Nếu điều kiện thất bại, nó sẽ ngay lập tức trả về **`Failure`** mà không thực thi child của nó.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE CheckConditionVariable.cs ---
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{   
+    [NodeInfo("Check Condition Variable", "Decorator/CheckConditionVariable", true, true, iconPath:"Assets/ND_BehaviorTree/NDBT/Icons/CheckCondition.png")]
+    public class CheckConditionVariable : DecoratorNode
+    {
+        [Tooltip("The Blackboard key (of type bool) to check.")]
+        public Key conditionKey;
+        [Tooltip("If checked, the result of the condition will be inverted.")]
+        public bool shouldInvert;
+
+        protected override Status OnProcess()
+        {
+            if (conditionKey == null) return Status.Failure;
+            bool conditionValue = blackboard.GetValue<bool>(conditionKey.keyName);
+            bool conditionPassed = (conditionValue != shouldInvert);
+
+            if (conditionPassed)
+            {
+                return child != null ? child.Process() : Status.Success;
+            }
+            else
+            {
+                return Status.Failure;
+            }
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

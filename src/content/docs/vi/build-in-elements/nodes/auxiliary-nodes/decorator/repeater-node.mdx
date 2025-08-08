@@ -1,0 +1,79 @@
+---
+title: Repeater Node
+description: Lặp lại child của nó một số lần được chỉ định, hoặc mãi mãi.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Decorator này thực thi child node của nó một cách lặp lại.
+
+**Đường dẫn trong Editor:** `Decorator > Repeater`
+
+### Thuộc tính
+
+| Thuộc tính       | Type | Mô tả                                                          |
+| ---------------- | ---- | --------------------------------------------------------------- |
+| `repeatCount`    | int  | Số lần lặp lại child. Đặt thành `0` để lặp mãi mãi.           |
+| `currentCount`   | int  | (Chỉ đọc) Số lần lặp lại thành công hiện tại.                  |
+
+### Hành vi
+
+-   Nó thực thi child của nó.
+    -   Nếu child trả về `Success`, nó tăng `currentCount`. Nếu số đếm vẫn nhỏ hơn `repeatCount`, nó trả về `Running` để đảm bảo nó được tick lại. Nếu số đếm đạt đến `repeatCount`, nó trả về `Success`.
+    -   Nếu child trả về `Failure`, Repeater ngay lập tức trả về `Failure`.
+    -   Nếu child trả về `Running`, Repeater trả về `Running`.
+-   Nếu `repeatCount` là `0`, nó sẽ không bao giờ trả về `Success` một cách độc lập và sẽ lặp lại vô hạn cho đến khi child của nó thất bại hoặc parent của nó hủy bỏ nó.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE RepeaterNode.cs ---
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Repeater", "Decorator/Repeater", true, true, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/Repeater.png")]
+    public class RepeaterNode : DecoratorNode
+    {
+        [Tooltip("The number of times to repeat the child. Set to 0 to repeat forever.")]
+        public int repeatCount = 3;
+        [ExposeProperty]
+        public int currentCount = 0;
+
+        protected override void OnEnter()
+        {
+            currentCount = 0;
+        }
+
+        protected override Status OnProcess()
+        {
+            if (child == null) return Status.Success;
+            if (repeatCount > 0 && currentCount >= repeatCount) return Status.Success;
+
+            var childStatus = child.Process();
+            switch (childStatus)
+            {
+                case Status.Running:
+                    return Status.Running;
+                case Status.Failure:
+                    return Status.Failure;
+                case Status.Success:
+                    currentCount++;
+                    child.Reset();
+                    if (repeatCount > 0 && currentCount >= repeatCount)
+                    {
+                        return Status.Success;
+                    }
+                    else
+                    {
+                        return Status.Running;
+                    }
+            }
+            return Status.Running;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

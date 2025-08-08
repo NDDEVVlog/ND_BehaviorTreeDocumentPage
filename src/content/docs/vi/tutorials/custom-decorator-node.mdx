@@ -1,0 +1,95 @@
+---
+title: 'Tạo Custom Decorator'
+description: 'Học cách tạo một Decorator node tùy chỉnh để sửa đổi hành vi của child của nó.'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Decorator là gì?
+
+Trong Behavior Tree, **Decorator** nodes là những "wrapper". Chúng nhận một child node đơn lẻ và thay đổi hành vi của nó. Chúng là một phần cơ bản của luồng thực thi của tree và được sử dụng để thêm điều kiện, lặp lại actions, hoặc thay đổi kết quả của một node.
+
+Hãy nghĩ về chúng như thế này:
+- Nếu một **Action** node là một *động từ* (như "Chạy"),
+- Một **Decorator** là một *trạng từ* hoặc một *điều kiện* (như "Chạy *cho đến khi* mệt" hoặc "Chạy *nếu* an toàn").
+
+Các ví dụ phổ biến bao gồm:
+- **Inverter:** Đảo ngược kết quả `Success` thành `Failure` và ngược lại.
+- **Repeater:** Thực thi child của nó một số lần cụ thể.
+- **Cooldown:** Ngăn child của nó chạy lại trong một khoảng thời gian đã định.
+
+## Lớp cơ sở: `DecoratorNode`
+
+Tất cả custom decorators phải kế thừa từ lớp `DecoratorNode`. Lớp này cung cấp cấu trúc cơ bản, bao gồm một thuộc tính `child` đơn lẻ.
+
+```csharp
+// Từ DecoratorNode.cs
+public abstract class DecoratorNode : AuxiliaryNode
+{
+    // Nó kế thừa thuộc tính 'child' từ AuxiliaryNode.
+    // public Node child;
+}
+```
+
+## Ví dụ: Tạo Inverter Node
+
+Hãy tạo một trong những decorators phổ biến nhất: Inverter. Node này sẽ thực thi child của nó và sau đó đơn giản là đảo ngược kết quả.
+
+### Tạo Script
+
+Tạo một script C# mới có tên `InverterNode.cs`.
+
+### Thêm Code
+
+Dán code sau vào script.
+
+```csharp
+using ND_BehaviorTree;
+
+// Thuộc tính NodeInfo làm cho nó xuất hiện trong menu tìm kiếm của editor.
+[NodeInfo("Inverter", "Decorator/Inverter", iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/Invert.png")]
+public class InverterNode : DecoratorNode
+{
+    // OnEnter và OnExit có thể để trống nếu không cần thiết lập/dọn dẹp đặc biệt.
+    protected override void OnEnter() { }
+    protected override void OnExit() { }
+
+    // Đây là nơi logic cốt lõi tồn tại.
+    protected override Status OnProcess()
+    {
+        // Nếu không có child, chúng ta không thể làm gì.
+        if (child == null)
+        {
+            return Status.Success; // Hoặc Failure, tùy thuộc vào hành vi mặc định mong muốn.
+        }
+
+        // Xử lý child node để lấy trạng thái của nó.
+        switch (child.Process())
+        {
+            case Status.Running:
+                // Nếu child vẫn đang chạy, chúng ta truyền trạng thái đó lên.
+                // Việc đảo ngược chỉ xảy ra khi nó hoàn thành.
+                return Status.Running;
+
+            case Status.Success:
+                // Child thành công, vì vậy chúng ta trả về Failure.
+                return Status.Failure;
+
+            case Status.Failure:
+                // Child thất bại, vì vậy chúng ta trả về Success.
+                return Status.Success;
+        }
+
+        // Dòng này về mặt kỹ thuật không bao giờ được đạt đến.
+        return Status.Failure;
+    }
+}
+```
+
+### Biên dịch và Sử dụng
+
+Sau khi Unity biên dịch script mới, bạn có thể tìm thấy node "Inverter" của mình trong Behavior Tree editor dưới danh mục "Decorator". Thêm nó vào tree của bạn, và kết nối bất kỳ node nào khác làm child của nó. Bạn sẽ thấy rằng kết quả bây giờ bị đảo ngược!
+
+<Aside type="tip">
+**Điểm chính:** Sức mạnh của một Decorator nằm ở phương thức `OnProcess` của nó. Bạn thực thi `child.Process()` và sau đó quyết định phải làm gì với kết quả trước khi trả về một trạng thái mới.
+</Aside>

@@ -1,27 +1,27 @@
 ---
 title: Set Boolean Value Node
-description: Sets a boolean (true/false) value on the Blackboard.
+description: Đặt giá trị boolean (true/false) trên Blackboard.
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-This is a simple but powerful Action node that sets a boolean value for a specified key on the Blackboard. It's essential for managing AI state.
+Đây là một Action node đơn giản nhưng mạnh mẽ đặt giá trị boolean cho một key được chỉ định trên Blackboard. Nó rất cần thiết để quản lý trạng thái AI.
 
-**Path in Editor:** `Action > SetBooleanValueNode`
+**Đường dẫn trong Editor:** `Action > SetBooleanValueNode`
 
-### Properties
+### Thuộc tính
 
-| Property         | Type    | Description                                                 |
+| Thuộc tính       | Type    | Mô tả                                                     |
 | ---------------- | ------- | ----------------------------------------------------------- |
-| `conditionKey`   | Key     | The Blackboard key (of type `bool`) to set.                 |
-| `ValueToSet`     | bool    | The boolean value (`true` or `false`) to assign to the key. |
+| `conditionKey`   | Key     | Blackboard key (của type `bool`) để đặt.                  |
+| `ValueToSet`     | bool    | Giá trị boolean (`true` hoặc `false`) để gán cho key.     |
 
-### Behavior
+### Hành vi
 
--   **Returns `Success`** after setting the value on the Blackboard.
--   **Returns `Failure`** if `conditionKey` is not assigned.
+-   **Trả về `Success`** sau khi đặt giá trị trên Blackboard.
+-   **Trả về `Failure`** nếu `conditionKey` không được gán.
 
-### Example Usage
-Use this to manage states like `isAlerted`. When an AI finds a player, a `Sequence` could run `FindTarget` then `SetBooleanValue` (`isAlerted` = `true`). Later, a `CheckConditionVariable` decorator can check this flag.
+### Ví dụ sử dụng
+Sử dụng để quản lý các trạng thái như `isAlerted`. Khi AI tìm thấy player, một `Sequence` có thể chạy `FindTarget` rồi `SetBooleanValue` (`isAlerted` = `true`). Sau đó, một `CheckConditionVariable` decorator có thể kiểm tra flag này.
 
 <Tabs>
 <TabItem label="C# Code">

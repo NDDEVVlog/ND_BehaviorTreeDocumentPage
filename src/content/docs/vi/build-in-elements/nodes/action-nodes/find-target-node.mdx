@@ -1,26 +1,26 @@
 ---
 title: Find Target Node
-description: Searches for the closest game object with a specific tag within a radius and stores it on the Blackboard.
+description: Tìm kiếm game object gần nhất với tag cụ thể trong bán kính và lưu nó trên Blackboard.
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-This Action node performs a physics-based search to find the nearest target. It's essential for AI perception.
+Action node này thực hiện tìm kiếm dựa trên physics để tìm target gần nhất. Nó rất cần thiết cho perception của AI.
 
-**Path in Editor:** `Action > Perception > FindTarget`
+**Đường dẫn trong Editor:** `Action > Perception > FindTarget`
 
-### Properties
+### Thuộc tính
 
-| Property         | Type      | Description                                                        |
-| ---------------- | --------- | ------------------------------------------------------------------ |
-| `targetTag`      | string    | The tag of the object to find (e.g., "Player").                    |
-| `searchRadius`   | float     | The radius to search within, centered on the AI.                   |
-| `targetKey`      | Key       | The Blackboard key (of type `Transform`) to store the found target. |
-| `searchLayer`    | LayerMask | The layer mask to use for the physics check.                       |
+| Thuộc tính       | Type      | Mô tả                                                          |
+| ---------------- | --------- | --------------------------------------------------------------- |
+| `targetTag`      | string    | Tag của object cần tìm (ví dụ: "Player").                      |
+| `searchRadius`   | float     | Bán kính tìm kiếm, tập trung vào AI.                           |
+| `targetKey`      | Key       | Blackboard key (của type `Transform`) để lưu target tìm được.  |
+| `searchLayer`    | LayerMask | Layer mask để sử dụng cho physics check.                       |
 
-### Behavior
+### Hành vi
 
--   **Returns `Success`** if a collider with the matching `targetTag` is found within the `searchRadius`. The `Transform` of the closest match is stored in the `targetKey` on the Blackboard.
--   **Returns `Failure`** if no matching target is found, or if `targetKey` is not assigned. If a target was previously stored, its value on the blackboard is set to `null`.
+-   **Trả về `Success`** nếu tìm thấy collider với `targetTag` khớp trong `searchRadius`. `Transform` của match gần nhất được lưu trong `targetKey` trên Blackboard.
+-   **Trả về `Failure`** nếu không tìm thấy target khớp, hoặc nếu `targetKey` không được gán. Nếu target đã được lưu trước đó, giá trị của nó trên blackboard được đặt thành `null`.
 
 <Tabs>
 <TabItem label="C# Code">

@@ -1,0 +1,70 @@
+---
+title: Sequence Node
+description: Thực thi children theo thứ tự cho đến khi một cái thất bại hoặc đang chạy.
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Sequence node, thường được biểu diễn như "→" trong sơ đồ behavior tree, thực thi children của nó từ trên xuống dưới miễn là chúng trả về `Success`.
+
+**Đường dẫn trong Editor:** `Composite > Sequence`
+
+### Hành vi
+
+-   Nó thực thi child đầu tiên của nó.
+    -   Nếu child trả về **`Failure`**, Sequence ngay lập tức trả về **`Failure`** và không chạy thêm children nào nữa.
+    -   Nếu child trả về **`Running`**, Sequence ngay lập tức trả về **`Running`** và sẽ đánh giá lại cùng child trên tick tiếp theo.
+    -   Nếu child trả về **`Success`**, Sequence chuyển đến child tiếp theo và lặp lại quá trình.
+-   Nếu tất cả children trả về `Success`, Sequence chính nó trả về **`Success`**.
+
+<Aside type="note">
+Node này giống như một phép toán AND logic. Nó được sử dụng để nối chuỗi các hành động phải xảy ra theo thứ tự: "Làm A, rồi làm B, rồi làm C."
+</Aside>
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE SequenceNode.cs ---
+using UnityEngine;
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Sequence", "Composite/Sequence", true, true, iconPath: "Assets/ND_BehaviorTree//NDBT/Icons/ProcessSequence.png", isChildOnly: false)]
+    public class SequenceNode : CompositeNode
+    {
+        protected int currentChildIndex;
+
+        protected override void OnEnter()
+        {
+            currentChildIndex = 0;
+        }
+
+        protected override Status OnProcess()
+        {
+            TickServices();
+            if (children.Count == 0) return Status.Success;
+
+            if (currentChildIndex < children.Count)
+            {
+                switch (children[currentChildIndex].Process())
+                {
+                    case Status.Running:
+                        return Status.Running;
+                    case Status.Failure:
+                        currentChildIndex = 0;
+                        return Status.Failure;
+                    default:
+                        currentChildIndex++;
+                        return currentChildIndex == children.Count ? Status.Success : Status.Running;
+                }
+            }
+            return Status.Success;
+        }
+        public override void Reset()
+        {
+            base.Reset();
+            currentChildIndex = 0;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

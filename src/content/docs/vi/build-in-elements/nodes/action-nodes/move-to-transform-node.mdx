@@ -1,32 +1,32 @@
 ---
 title: Move To Transform Node
-description: Moves a NavMeshAgent to the position of a target Transform stored on the Blackboard.
+description: Di chuyển NavMeshAgent đến vị trí của target Transform được lưu trên Blackboard.
 ---
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-This Action node commands a `NavMeshAgent` to move towards a target `Transform`. It periodically updates the destination to allow for chasing moving targets.
+Action node này ra lệnh cho `NavMeshAgent` di chuyển về phía target `Transform`. Nó cập nhật destination định kỳ để cho phép đuổi theo các target đang di chuyển.
 
-**Path in Editor:** `Action > MoveToTransform`
+**Đường dẫn trong Editor:** `Action > MoveToTransform`
 
-### Properties
+### Thuộc tính
 
-| Property               | Type  | Description                                                                                               |
-| ---------------------- | ----- | --------------------------------------------------------------------------------------------------------- |
-| `agentKey`             | Key   | The Blackboard key for the `NavMeshAgent` component on the AI.                                             |
-| `targetTransformKey`   | Key   | The Blackboard key (of type `Transform`) for the target to move towards.                                  |
-| `updateInterval`       | float | How often, in seconds, to update the destination. `0` means every frame.                                  |
+| Thuộc tính            | Type  | Mô tả                                                                                         |
+| ---------------------- | ----- | --------------------------------------------------------------------------------------------- |
+| `agentKey`             | Key   | Blackboard key cho `NavMeshAgent` component trên AI.                                          |
+| `targetTransformKey`   | Key   | Blackboard key (của type `Transform`) cho target để di chuyển đến.                           |
+| `updateInterval`       | float | Tần suất cập nhật destination tính bằng giây. `0` có nghĩa là mỗi frame.                     |
 
-### Behavior
+### Hành vi
 
--   **On Enter:** Retrieves the agent and target, then sets the initial destination.
+-   **On Enter:** Lấy agent và target, sau đó đặt destination ban đầu.
 -   **On Process:**
-    -   **Returns `Failure`** if the agent or target is missing.
-    -   **Returns `Success`** when the agent reaches its destination.
-    -   **Returns `Running`** while the agent is moving towards the target.
--   **On Exit:** Stops the agent by calling `agent.ResetPath()`.
+    -   **Trả về `Failure`** nếu agent hoặc target bị thiếu.
+    -   **Trả về `Success`** khi agent đến destination.
+    -   **Trả về `Running`** trong khi agent đang di chuyển về phía target.
+-   **On Exit:** Dừng agent bằng cách gọi `agent.ResetPath()`.
 
 <Aside type="caution">
-This node requires a `NavMeshAgent` component on your AI and a baked NavMesh in your scene.
+Node này yêu cầu `NavMeshAgent` component trên AI của bạn và NavMesh đã được bake trong scene.
 </Aside>
 
 <Tabs>

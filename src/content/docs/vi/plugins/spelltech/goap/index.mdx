@@ -1,0 +1,38 @@
+---
+title: Tổng quan GOAP
+description: GOAP là một design pattern để tạo ra hành vi AI phức tạp và không thể đoán trước.
+---
+
+<div style={{
+  border: '2px solid var(--sl-color-red-high)',
+  borderRadius: '0.5rem',
+  padding: '1rem',
+  margin: '2rem 0',
+  backgroundColor: 'var(--sl-color-red-low)'
+}}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
+    <img 
+      src="https://avatars.githubusercontent.com/u/111946313?v=4" 
+      alt="NDDEVGAME Avatar" 
+      style={{ width: '64px', height: '64px', borderRadius: '50%' }} 
+    />
+    <strong style={{ fontSize: '1.2rem' }}>NDDEVGAME</strong>
+  </div>
+  <div style={{ paddingLeft: 'calc(64px + 1rem)' }}>
+    Bạn có thể thử hệ thống GOAP trong phiên bản mới nhất. Tuy nhiên, UX hiện tại chưa rõ ràng và không trực quan.
+    Tài liệu hoàn chỉnh sẽ được đăng khi hệ thống được hoàn thiện.
+  </div>
+</div>
+
+## GOAP là gì?
+
+**GOAP (Goal-Oriented Action Planning)** là một kiến trúc ra quyết định nơi các AI agent lập kế hoạch động các chuỗi hành động để đạt được các mục tiêu đã định nghĩa. Khác với behavior tree tĩnh hoặc finite state machine, GOAP cho phép hành vi thông minh và nổi lên hơn bằng cách đánh giá trạng thái thế giới và chi phí.
+
+Trong implementation này, **GOAP được nhúng như các node bên trong Behavior Tree**, kết hợp luồng có cấu trúc của behavior tree với tính linh hoạt và thích ứng của GOAP. Cách tiếp cận hybrid này cho phép:
+
+- **Kiểm soát cấp cao** thông qua các nhánh Behavior Tree (ví dụ: khi nào chuyển mục tiêu).
+- **Lập kế hoạch cấp thấp** trong các GOAP node, nơi các agent tìm ra các hành động tốt nhất để thực hiện.
+
+Thiết kế này cho phép các hành vi AI có thể mở rộng và thông minh hơn, đặc biệt hữu ích trong các game yêu cầu ra quyết định phức tạp như stealth, survival, hoặc quản lý tài nguyên.
+
+> 🚧 Hiện tại, UX editor cho GOAP nodes vẫn đang được cải thiện để rõ ràng và dễ sử dụng hơn.

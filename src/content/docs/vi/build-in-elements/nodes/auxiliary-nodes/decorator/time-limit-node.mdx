@@ -1,0 +1,63 @@
+---
+title: Time Limit Node
+description: Làm thất bại child của nó nếu nó mất quá nhiều thời gian để thực thi.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Decorator này áp đặt giới hạn thời gian cho child node của nó. Nếu child vẫn ở trạng thái `Running` lâu hơn giới hạn được chỉ định, node này sẽ gián đoạn nó và trả về `Failure`.
+
+**Đường dẫn trong Editor:** `Decorator > TimeLimit`
+
+### Thuộc tính
+
+| Thuộc tính    | Type  | Mô tả                                                          |
+| ---------------- | ----- | --------------------------------------------------------------- |
+| `timeLimit`      | float | Thời gian tối đa tính bằng giây child có thể chạy trước khi thất bại. |
+
+### Hành vi
+
+-   Nó thực thi child của nó và theo dõi thời gian nó đã `Running`.
+-   Nếu child trả về `Success` hoặc `Failure` trước khi đạt đến giới hạn thời gian, node này trả về trạng thái tương tự.
+-   Nếu thời gian đã trôi qua vượt quá `timeLimit` trong khi child vẫn đang `Running`, node này gián đoạn child, reset nó, và trả về **`Failure`**.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE TimeLimitNode.cs ---
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Time Limit", "Decorator/TimeLimit", true, true, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/Timer.png")]
+    public class TimeLimitNode : DecoratorNode
+    {
+        [Tooltip("The maximum time in seconds the child node can be in the Running state.")]
+        public float timeLimit = 1.0f;
+        [NodeProgressBar(nameof(elapsedTime), nameof(timeLimit))]
+        [ExposeProperty]
+        private float elapsedTime;
+        private float startTime;
+
+        protected override void OnEnter()
+        {
+            startTime = Time.time;
+            elapsedTime = 0f;
+        }
+
+        protected override Status OnProcess()
+        {
+            if (child == null) return Status.Failure;
+            elapsedTime = Time.time - startTime;
+            if (elapsedTime > timeLimit)
+            {
+                child.InteruptAction?.Invoke();
+                child.Reset();
+                return Status.Failure;
+            }
+            return child.Process();
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

@@ -1,0 +1,69 @@
+---
+title: Cooldown Node
+description: Ngăn child của nó chạy trong một khoảng thời gian được thiết lập sau khi nó thành công.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+Decorator này đặt child branch của nó vào cooldown. Sau khi child hoàn thành thành công, node này sẽ chặn nó khỏi việc chạy lại cho đến khi thời gian cooldown đã trôi qua.
+
+**Đường dẫn trong Editor:** `Decorator > Cooldown`
+
+### Thuộc tính
+
+| Thuộc tính         | Type  | Mô tả                                                          |
+| ------------------ | ----- | --------------------------------------------------------------- |
+| `cooldownDuration` | float | Thời gian tính bằng giây để chờ sau khi child thành công trước khi nó có thể chạy lại. |
+
+### Hành vi
+
+-   Nếu cooldown đang hoạt động, node ngay lập tức trả về **`Failure`**.
+-   Nếu cooldown không hoạt động, nó thực thi child của nó.
+    -   Nếu child trả về `Success`, timer cooldown bắt đầu, và node trả về `Success`.
+    -   Nếu child trả về `Failure` hoặc `Running`, node trả về trạng thái đó và cooldown không bắt đầu.
+
+### Ví dụ sử dụng
+Lý tưởng cho các khả năng đặc biệt hoặc tấn công để ngăn AI spam chúng.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE CoolDownNode.cs ---
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Cooldown", "Decorator/Cooldown", true, true, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/Cooldown.png")]
+    public class CooldownNode : DecoratorNode
+    {
+        [Tooltip("The duration in seconds to wait after the child succeeds before it can run again.")]
+        public float cooldownDuration = 5.0f;
+        [NodeProgressBar(nameof(cooldownRemaining), nameof(cooldownDuration))]
+        [ExposeProperty]
+        private float cooldownRemaining;
+        private float cooldownEndTime = -1.0f;
+
+        protected override Status OnProcess()
+        {
+            if (child == null) return Status.Failure;
+            cooldownRemaining = Mathf.Max(0, cooldownEndTime - Time.time);
+            if (cooldownRemaining > 0) return Status.Failure;
+            var status = child.Process();
+            if (status == Status.Success)
+            {
+                cooldownEndTime = Time.time + cooldownDuration;
+                cooldownRemaining = cooldownDuration;
+            }
+            return status;
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            cooldownEndTime = -1.0f;
+            cooldownRemaining = 0;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

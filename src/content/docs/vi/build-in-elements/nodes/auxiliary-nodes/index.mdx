@@ -1,0 +1,66 @@
+---
+title: Tổng quan Auxiliary Nodes
+description: Tổng quan về Auxiliary Nodes, bao gồm Decorators và Services.
+---
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+## Tổng quan
+
+**Auxiliary Nodes** là các node hỗ trợ hoặc sửa đổi các node khác. Chúng luôn có một node "parent" duy nhất mà chúng được gắn vào hoặc một "child" duy nhất mà chúng ảnh hưởng. Có hai loại chính của Auxiliary Nodes trong framework này: **Decorators** và **Services**.
+
+-   **Decorators:** Bọc một child node duy nhất để sửa đổi hành vi hoặc kết quả của nó (ví dụ: Inverter, Repeater). Chúng là một phần của luồng thực thi chính.
+-   **Services:** Gắn vào một Composite node và chạy định kỳ trong nền miễn là composite đang hoạt động. Chúng không phải là một phần của luồng thực thi chính.
+
+<Tabs>
+<TabItem label="C# Base Class">
+```csharp
+// --- START OF FILE AuxiliaryNode.cs ---
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    public abstract class AuxiliaryNode : Node
+    {
+         public Node child;
+
+        public void SetChild(Node child)
+        {
+            this.child = child;
+        }
+
+        public override void AddChild(Node newChild)
+        {
+            this.child = newChild;
+        }
+
+        public override void RemoveChild(Node childToRemove)
+        {
+            if (this.child == childToRemove)
+            {
+                this.child = null;
+            }
+        }
+
+        public override List<Node> GetChildren()
+        {
+            var list = new List<Node>();
+            if (child != null)
+            {
+                list.Add(child);
+            }
+            return list;
+        }
+
+        public override void Reset()
+        {
+            base.Reset();
+            if(child != null)
+                child.Reset();
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

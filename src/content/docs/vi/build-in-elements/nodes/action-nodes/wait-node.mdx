@@ -1,28 +1,28 @@
 ---
 title: Wait Node
-description: Pauses the execution of the behavior tree branch for a specified duration.
+description: Tạm dừng thực thi của behavior tree branch trong một khoảng thời gian được chỉ định.
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-This Action node pauses the behavior tree's execution at its position for a fixed amount of time.
+Action node này tạm dừng thực thi của behavior tree tại vị trí của nó trong một khoảng thời gian cố định.
 
-**Path in Editor:** `Action > Wait`
+**Đường dẫn trong Editor:** `Action > Wait`
 
-### Properties
+### Thuộc tính
 
-| Property   | Type  | Description                                        |
-| ---------- | ----- | -------------------------------------------------- |
-| `duration` | float | The time in seconds to wait before returning `Success`. |
+| Thuộc tính | Type  | Mô tả                                                |
+| ---------- | ----- | ---------------------------------------------------- |
+| `duration` | float | Thời gian tính bằng giây để chờ trước khi trả về `Success`. |
 
-### Behavior
+### Hành vi
 
--   **On Enter:** The node records the current time.
+-   **On Enter:** Node ghi lại thời gian hiện tại.
 -   **On Process:**
-    -   **Returns `Running`** if the elapsed time is less than `duration`.
-    -   **Returns `Success`** once the elapsed time has exceeded `duration`.
+    -   **Trả về `Running`** nếu thời gian đã trôi qua ít hơn `duration`.
+    -   **Trả về `Success`** một khi thời gian đã trôi qua vượt quá `duration`.
 
-### Example Usage
-Use this node in a `Sequence` to make an AI pause after reaching a patrol point before moving to the next one. (`Move To Patrol Point` -> `Wait` -> `Next Patrol Point`)
+### Ví dụ sử dụng
+Sử dụng node này trong một `Sequence` để làm AI tạm dừng sau khi đến patrol point trước khi di chuyển đến điểm tiếp theo. (`Move To Patrol Point` -> `Wait` -> `Next Patrol Point`)
 
 <Tabs>
 <TabItem label="C# Code">

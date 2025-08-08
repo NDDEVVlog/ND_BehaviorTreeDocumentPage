@@ -1,31 +1,31 @@
 ---
 title: Move To Patrol Point Node
-description: Moves a NavMeshAgent to a specific Vector3 position stored on the Blackboard.
+description: Di chuyển NavMeshAgent đến vị trí Vector3 cụ thể được lưu trên Blackboard.
 ---
 import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 
-This Action node commands a `NavMeshAgent` to move towards a static `Vector3` destination. This is ideal for patrol routes where the points do not move.
+Action node này ra lệnh cho `NavMeshAgent` di chuyển đến destination `Vector3` tĩnh. Điều này lý tưởng cho các tuyến tuần tra nơi các điểm không di chuyển.
 
-**Path in Editor:** `Action > Movement > MoveToPatrolPoint`
+**Đường dẫn trong Editor:** `Action > Movement > MoveToPatrolPoint`
 
-### Properties
+### Thuộc tính
 
-| Property         | Type | Description                                                        |
-| ---------------- | ---- | ------------------------------------------------------------------ |
-| `agentKey`       | Key  | The Blackboard key for the `NavMeshAgent` component on the AI.      |
-| `destinationKey` | Key  | The Blackboard key (of type `Vector3`) for the destination point.  |
+| Thuộc tính       | Type | Mô tả                                                          |
+| ---------------- | ---- | --------------------------------------------------------------- |
+| `agentKey`       | Key  | Blackboard key cho `NavMeshAgent` component trên AI.            |
+| `destinationKey` | Key  | Blackboard key (của type `Vector3`) cho điểm destination.      |
 
-### Behavior
+### Hành vi
 
--   **On Enter:** Retrieves the `NavMeshAgent` and `Vector3` destination, then sets the agent's destination.
+-   **On Enter:** Lấy `NavMeshAgent` và `Vector3` destination, sau đó đặt destination của agent.
 -   **On Process:**
-    -   **Returns `Failure`** if the agent is missing from the Blackboard.
-    -   **Returns `Success`** when the agent reaches its destination.
-    -   **Returns `Running`** while the agent is calculating its path or moving.
--   **On Exit:** Calls `agent.ResetPath()` to stop the agent's movement.
+    -   **Trả về `Failure`** nếu agent bị thiếu từ Blackboard.
+    -   **Trả về `Success`** khi agent đến destination.
+    -   **Trả về `Running`** trong khi agent đang tính toán path hoặc di chuyển.
+-   **On Exit:** Gọi `agent.ResetPath()` để dừng di chuyển của agent.
 
 <Aside type="caution">
-This node requires a `NavMeshAgent` component on your AI and a baked NavMesh in your scene to function correctly.
+Node này yêu cầu `NavMeshAgent` component trên AI của bạn và NavMesh đã được bake trong scene để hoạt động chính xác.
 </Aside>
 
 <Tabs>

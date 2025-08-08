@@ -1,0 +1,65 @@
+---
+title: Succeeder Node
+description: Luôn trả về Success, bất kể kết quả của child của nó (trừ khi nó đang Running).
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Decorator này đảm bảo rằng nhánh mà nó chứa là "tùy chọn." Nó sẽ luôn trả về `Success` trừ khi child của nó vẫn đang ở trạng thái `Running`. Nó hiệu quả bỏ qua kết quả `Failure` từ child của nó.
+
+**Đường dẫn trong Editor:** `Decorator > Succeeder`
+
+### Hành vi
+
+Succeeder node bọc một child duy nhất và sửa đổi kết quả của nó:
+
+-   Nếu child của nó trả về `Success`, Succeeder trả về **`Success`**.
+-   Nếu child của nó trả về `Failure`, Succeeder trả về **`Success`**.
+-   Nếu child của nó trả về `Running`, Succeeder trả về **`Running`**.
+
+<Aside type="tip">
+**Khi nào sử dụng:** Trong một `Sequence`, bạn có thể có một hành động tùy chọn như "Play Taunt Animation". Nếu animation đó thất bại vì lý do nào đó, bạn không muốn toàn bộ sequence dừng lại. Bọc animation node trong một **Succeeder** đảm bảo sequence sẽ tiếp tục bất kể kết quả.
+</Aside>
+
+### Thuộc tính
+
+Node này không có thuộc tính có thể cấu hình.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE SucceederNode.cs ---
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Succeeder", "Decorator/Succeeder", true, true, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/Check.png")]
+    public class SucceederNode : DecoratorNode
+    {
+        /// <summary>
+        /// This decorator ensures that its child branch always returns Success,
+        /// unless it is still Running. It's useful for making behaviors optional
+        /// within a Sequence.
+        /// </summary>
+        protected override Status OnProcess()
+        {
+            if (child == null)
+            {
+                return Status.Success;
+            }
+
+            var status = child.Process();
+
+            if (status == Status.Running)
+            {
+                return Status.Running;
+            }
+
+            return Status.Success;
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

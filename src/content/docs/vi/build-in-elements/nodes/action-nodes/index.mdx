@@ -1,22 +1,22 @@
 ---
-title: Action Nodes Overview
-description: Action Nodes are the leaf nodes of a behavior tree that perform the actual work.
+title: Tổng quan Action Nodes
+description: Action Nodes là các leaf nodes của behavior tree thực hiện công việc thực tế.
 ---
 import { Tabs, TabItem } from '@astrojs/starlight/components';
 
-## Overview
+## Tổng quan
 
-**Action Nodes** are the fundamental building blocks of any behavior tree. They are the "leaves" of the tree and are responsible for performing the actual tasks and changing the state of the game world. They do not have any child nodes.
+**Action Nodes** là các khối xây dựng cơ bản của bất kỳ behavior tree nào. Chúng là các "lá" của tree và chịu trách nhiệm thực hiện các tác vụ thực tế và thay đổi trạng thái của game world. Chúng không có bất kỳ child nodes nào.
 
-An action can be anything from moving an AI, playing an animation, attacking a target, or logging a message. The key characteristic of an Action Node is that it executes a specific piece of logic and returns a status to its parent.
+Một action có thể là bất cứ thứ gì từ di chuyển AI, phát animation, tấn công target, hoặc ghi log message. Đặc điểm chính của Action Node là nó thực thi một phần logic cụ thể và trả về trạng thái cho parent của nó.
 
-### Core Concepts
-- **No Children:** Action nodes are terminal; they cannot have children.
-- **Perform Work:** They contain the direct logic for your AI's behavior (e.g., `agent.SetDestination()`, `animator.SetTrigger()`).
-- **Return Status:** Every action must return one of three statuses:
-    - `Success`: The action completed its task successfully.
-    - `Failure`: The action could not complete its task.
-    - `Running`: The action is in progress and needs more time to complete.
+### Khái niệm cốt lõi
+- **Không có Children:** Action nodes là terminal; chúng không thể có children.
+- **Thực hiện Công việc:** Chúng chứa logic trực tiếp cho hành vi AI của bạn (ví dụ: `agent.SetDestination()`, `animator.SetTrigger()`).
+- **Trả về Trạng thái:** Mọi action phải trả về một trong ba trạng thái:
+    - `Success`: Action hoàn thành tác vụ thành công.
+    - `Failure`: Action không thể hoàn thành tác vụ.
+    - `Running`: Action đang trong quá trình và cần thêm thời gian để hoàn thành.
 
 <Tabs>
 <TabItem label="C# Base Class">

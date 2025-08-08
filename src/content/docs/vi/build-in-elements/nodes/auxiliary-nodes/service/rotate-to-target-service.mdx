@@ -1,0 +1,70 @@
+---
+title: Rotate To Target Service
+description: Định kỳ xoay NavMeshAgent để hướng về phía nó đang di chuyển.
+---
+import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
+
+Service này, khi được gắn vào một Composite node, sẽ xoay AI một cách mượt mà để hướng về phía di chuyển của nó. Nó chạy theo timer miễn là parent branch của nó đang hoạt động.
+
+**Đường dẫn trong Editor:** `Service > RotateToTarget`
+
+### Thuộc tính
+
+| Thuộc tính       | Type  | Mô tả                                                          |
+| ---------------- | ----- | --------------------------------------------------------------- |
+| `rotationSpeed`  | float | Tốc độ agent xoay. Cao hơn là nhanh hơn.                       |
+| `agentKey`       | Key   | Blackboard key cho component `NavMeshAgent`.                    |
+
+<Aside type="note">
+Đây là một **Service**, không phải Decorator. Nó nên được thêm vào một Composite node (như Sequence hoặc Selector) điều khiển di chuyển. Nó sẽ chạy trong nền trong khi các movement nodes đang thực thi.
+</Aside>
+
+### Hành vi
+
+-   Trên interval của nó, nó kiểm tra `velocity` của `NavMeshAgent`.
+-   Nếu agent đang di chuyển, nó tính toán rotation cần thiết để nhìn theo hướng di chuyển và interpolate mượt mà rotation hiện tại của agent về phía đó.
+
+<Tabs>
+<TabItem label="C# Code">
+```csharp
+// --- START OF FILE RotateToTargetService.cs ---
+using UnityEngine;
+using UnityEngine.AI;
+
+namespace ND_BehaviorTree
+{
+    [NodeInfo("Rotate To Target", "Service/RotateToTarget", true, true,isChildOnly:true)]
+    public class RotateToTargetService : ServiceNode
+    {
+        [Tooltip("How quickly the agent rotates to face its target direction. Higher is faster.")]
+        public float rotationSpeed = 5.0f;
+        [Tooltip("The Blackboard key for the NavMeshAgent component on the AI.")]
+        public Key agentKey;
+        private NavMeshAgent agent;
+        private Transform agentTransform;
+
+        protected override void OnEnter()
+        {
+            base.OnEnter();
+            if (agentKey != null && blackboard != null)
+            {
+                agent = blackboard.GetValue<NavMeshAgent>(agentKey.keyName);
+                if (agent != null) agentTransform = agent.transform;
+            }
+        }
+        
+        protected override void OnTick()
+        {
+            if (agent == null || agentTransform == null) return;
+            if (agent.velocity.sqrMagnitude > 0.1f) 
+            {
+                Vector3 direction = agent.velocity.normalized;
+                Quaternion lookRotation = Quaternion.LookRotation(direction);
+                agentTransform.rotation = Quaternion.Slerp(agentTransform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
+            }
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>

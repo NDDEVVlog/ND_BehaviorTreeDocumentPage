@@ -1,0 +1,82 @@
+---
+title: 'Hiểu về Services'
+description: 'Học cách Service nodes hoạt động cho các tác vụ nền và kiểm tra định kỳ.'
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Service là gì?
+
+Một **Service** là một loại node đặc biệt chạy trong nền trên một timer. Không giống như Actions hoặc Decorators, nó **không** phải là một phần của luồng thực thi chính của tree.
+
+Services được gắn vào **Composite Nodes** (`Sequence`, `Selector`, v.v.). Miễn là composite node cha đang hoạt động (tức là, nhánh của nó đang được thực thi), service sẽ "tick" và thực hiện logic của nó định kỳ.
+
+**Sử dụng services cho:**
+- Kiểm tra môi trường định kỳ (ví dụ: "Player có trong phạm vi tấn công không?").
+- Cập nhật giá trị trên **Blackboard** (ví dụ: "Đặt `isTargetVisible` thành true/false").
+- Giám sát trạng thái của agent (ví dụ: "Giảm mức độ đói theo thời gian").
+
+<Aside type="danger">
+**Quan trọng:** Services **không bao giờ** nên được sử dụng cho control flow trực tiếp. Chúng chỉ dành cho quan sát và cập nhật dữ liệu. Giá trị trả về của chúng bị bỏ qua bởi composite cha.
+</Aside>
+
+## Cách Services hoạt động
+
+- **Gắn kết:** Bạn gắn một Service vào một `CompositeNode` trong editor.
+- **Kích hoạt:** Service trở nên hoạt động khi `CompositeNode` cha của nó được thực thi lần đầu tiên.
+- **Ticking:** Trong khi composite đang hoạt động, phương thức `TickServices()` của nó được gọi trên mỗi `Update`. Service kiểm tra nội bộ xem đã đủ thời gian kể từ lần thực thi cuối cùng dựa trên `interval` của nó chưa.
+- **Logic:** Nếu điều kiện timer được đáp ứng, phương thức `OnTick()` của service được thực thi.
+
+Script `ServiceNode.cs` quản lý logic timing này cho bạn. Bạn chỉ cần quan tâm đến các thuộc tính và phương thức `OnTick()`.
+
+- `interval`: Thời gian tính bằng giây giữa mỗi tick.
+- `runOnEnter`: Nếu true, service sẽ thực thi phương thức `OnTick()` của nó ngay lập tức khi nó trở nên hoạt động, không chờ interval đầu tiên.
+
+## Ví dụ: Một Service "Find Target"
+
+Hãy tạo một service định kỳ quét tìm target với tag "Player" và lưu trữ nó trên blackboard.
+
+1.  **Tạo Script:** Tạo một script C# mới có tên `FindPlayerTargetService.cs`.
+
+2.  **Thêm Code:**
+
+    ```csharp
+    using UnityEngine;
+    using ND_BehaviorTree;
+
+    // isChildOnly = true ẩn nó khỏi menu node chính, vì nó chỉ có thể được gắn.
+    [NodeInfo("Find Player Target", "Service/FindPlayerTarget", isChildOnly: true)]
+    public class FindPlayerTargetService : ServiceNode
+    {
+        [Tooltip("The tag to search for.")]
+        public string targetTag = "Player";
+
+        [Tooltip("The blackboard key to store the found target in.")]
+        [ExposeProperty]
+        public string targetKey = "Target";
+
+        // OnTick là phương thức logic chính cho một Service.
+        protected override void OnTick()
+        {
+            if (blackboard == null) return;
+
+            // Tìm game object gần nhất với tag được chỉ định.
+            GameObject targetObject = GameObject.FindGameObjectWithTag(targetTag);
+            
+            // Đặt giá trị trên blackboard. Điều này sẽ cập nhật entry
+            // hiện có hoặc không làm gì nếu key không tồn tại.
+            // Sử dụng SetValueObject linh hoạt cho các loại key khác nhau.
+            blackboard.SetValueObject(targetKey, targetObject);
+        }
+    }
+    ```
+    
+3.  **Biên dịch và Sử dụng:**
+    - Đi đến Behavior Tree editor của bạn.
+    - Right-click trên một node `Sequence` hoặc `Selector` và chọn `Add Service -> Service/FindPlayerTarget`.
+    - Cấu hình thuộc tính `targetKey` trên service để khớp với một `GameObject` key trên blackboard của bạn.
+    - Bây giờ, bất cứ khi nào phần này của tree đang hoạt động, service sẽ định kỳ quét tìm player và giữ cho blackboard được cập nhật. Các node khác sau đó có thể đọc key `Target` này để đưa ra quyết định.
+
+<Aside type="note">
+Services là "mắt và tai" của AI của bạn. Chúng giữ cho blackboard, "bộ não" của AI, được cập nhật với thông tin mới từ thế giới game.
+</Aside>

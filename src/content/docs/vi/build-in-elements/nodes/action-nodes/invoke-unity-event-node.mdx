@@ -14,7 +14,7 @@ Node này lấy một đối tượng `UnityEvent` từ Blackboard và kích ho�
 | ----------------- | ---- | ---------------------------------------------------------------- |
 | `unityEventKey`   | Key  | Key trên Blackboard (kiểu `UnityEvent`) để lấy và kích hoạt.     |
 
-### Hành vi
+### Hành vi 
 
 -   **Trả về `Success`** nếu tìm thấy UnityEvent hợp lệ trên Blackboard và đã kích hoạt thành công.
 -   **Trả về `Failure`** nếu chưa gán `unityEventKey`, hoặc giá trị trên Blackboard là null hoặc không phải UnityEvent.
@@ -26,7 +26,6 @@ AI hoặc một script quản lý khác phải chịu trách nhiệm tạo Unity
 <Tabs>
 <TabItem label="C# Code">
 ```csharp
-// --- START OF FILE InvokeUnityEventNode.cs ---
 using UnityEngine;
 using UnityEngine.Events;
 

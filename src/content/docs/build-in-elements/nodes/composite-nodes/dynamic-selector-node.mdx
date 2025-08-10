@@ -1,0 +1,211 @@
+---
+title: Dynamic Selector Node
+description: A composite node that selects a child branch dynamically using custom logic.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+
+## Overview
+`DynamicSelectorNode` is a powerful composite node that brings dynamic logic and state machine-like behavior to your behavior tree.
+
+Unlike a standard **Selector** (which executes child nodes in order until one succeeds) or **Sequence** (which executes until one fails), the `DynamicSelectorNode` delegates branch selection to a custom logic class.
+
+This logic class must implement the `IDynamicBranchSelector` interface. This lets you decouple decision-making from tree structure, enabling **flexible, reusable, and testable** behaviors.
+
+### Main Use Cases:
+- **AI State Machine:** Select behavior branches based on the AI's current state (Patrol, Attack, Flee, etc).
+- **Data-driven Decisions:** Choose actions based on Blackboard data like health, ammo, or target distance.
+- **Complex Conditions:** Build logic that regular decorators can't handle.
+- **True/False Branch Conditions:** Implement simple true/false checks to determine the active branch.
+---
+
+## How It Works
+
+### Main Components
+The system consists of two parts:
+1. The DynamicSelectorNode
+2. The branch selection logic interface
+
+### `IDynamicBranchSelector.cs`
+```csharp
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    /// <summary>
+    /// Interface for dynamic branch selection logic in DynamicSelectorNode.
+    /// </summary>
+    public interface IDynamicBranchSelector
+    {
+        /// <summary>
+        /// Called once when the node is activated. Use for caching or initialization.
+        /// </summary>
+        void OnInitialize(GameObject ownerGameObject);
+
+        /// <summary>
+        /// Selects a child branch to execute based on custom logic.
+        /// </summary>
+        bool TrySelectBranch(GameObject ownerGameObject, Blackboard blackboard, out int selectedIndex);
+    }
+}
+```
+
+---
+
+### `DynamicSelectorNode.cs`
+```csharp
+using UnityEngine;
+using ND_BehaviorTree;
+
+[NodeInfo("Dynamic Selector", "Composite/DynamicSelector", true, true, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/adaptation.png")]
+public class DynamicSelectorNode : CompositeNode
+{
+    [SerializeReference]
+    public IDynamicBranchSelector condition;
+
+    private int _runningChildIndex = -1;
+
+    protected override void OnEnter()
+    {
+        _runningChildIndex = -1;
+        condition?.OnInitialize(GetOwnerTreeGameObject());
+    }
+
+    protected override Status OnProcess()
+    {
+        TickServices();
+
+        if (_runningChildIndex != -1)
+        {
+            Node runningChild = children[_runningChildIndex];
+            Status childStatus = runningChild.Process();
+
+            if (childStatus == Status.Running)
+                return Status.Running;
+
+            runningChild.Reset();
+            _runningChildIndex = -1;
+            return childStatus;
+        }
+
+        if (condition == null)
+        {
+            Debug.LogError("DynamicSelectorNode: No condition assigned.", this);
+            return Status.Failure;
+        }
+
+        if (condition.TrySelectBranch(GetOwnerTreeGameObject(), blackboard, out int selectedIndex))
+        {
+            if (selectedIndex < 0 || selectedIndex >= children.Count)
+            {
+                Debug.LogError($"Invalid index: {selectedIndex}", this);
+                return Status.Failure;
+            }
+
+            Node newChild = children[selectedIndex];
+            Status newStatus = newChild.Process();
+
+            if (newStatus == Status.Running)
+                _runningChildIndex = selectedIndex;
+
+            return newStatus;
+        }
+
+        return Status.Failure;
+    }
+    
+    public override void Reset()
+    {
+        base.Reset();
+        _runningChildIndex = -1;
+    }
+}
+```
+
+---
+
+### Execution Flow
+The `OnProcess` method works as follows:
+
+1. **Check running branch** — If a branch is running, continue executing it.
+2. **Select new branch** — If not, call `TrySelectBranch`.
+3. **Execute branch** — Run the selected branch and remember it if still running.
+4. **Error handling** — Return failure if no branch is selected or index is invalid.
+
+<Aside type="note">
+**Efficiency:** `IDynamicBranchSelector` is only called when a new decision is needed, avoiding unnecessary checks.
+</Aside>
+
+---
+
+## Example: State-Based AI
+
+### Goal
+AI can be in **Passive**, **Cautious**, or **Aggressive** states, each mapped to a branch in the tree.
+
+---
+
+### 1. Define State Enum and Blackboard Key
+```csharp
+// AIState.cs
+public enum AIState
+{
+    Passive,
+    Cautious,
+    Aggressive
+}
+
+// BlackboardKeys.cs
+public static class BlackboardKeys
+{
+    public const string AIState = "AIState";
+}
+```
+
+---
+
+### 2. Implement `AIStateSelector`
+```csharp
+// AIStateSelector.cs
+using UnityEngine;
+using ND_BehaviorTree;
+
+[System.Serializable]
+public class AIStateSelector : IDynamicBranchSelector
+{
+    public void OnInitialize(GameObject ownerGameObject) { }
+
+    public bool TrySelectBranch(GameObject ownerGameObject, Blackboard blackboard, out int selectedIndex)
+    {
+        selectedIndex = -1;
+
+        if (!blackboard.TryGetEnumValue<AIState>(BlackboardKeys.AIState, out AIState currentState))
+        {
+            Debug.LogWarning("AIState not found.");
+            return false;
+        }
+
+        switch (currentState)
+        {
+            case AIState.Passive: selectedIndex = 0; return true;
+            case AIState.Cautious: selectedIndex = 1; return true;
+            case AIState.Aggressive: selectedIndex = 2; return true;
+        }
+        return false;
+    }
+}
+```
+
+---
+
+### 3. Tree Structure
+```plaintext
+- Root
+  - DynamicSelectorNode (AIStateSelector)
+    - [0] Sequence (Patrol)
+    - [1] Sequence (Find Cover)
+    - [2] Sequence (Attack Player)
+```
+
+**Result:** When the `AIState` value on the blackboard changes, the executed branch changes accordingly.

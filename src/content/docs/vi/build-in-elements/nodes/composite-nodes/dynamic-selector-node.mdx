@@ -1,0 +1,211 @@
+---
+title: Dynamic Selector Node
+description: Node tổng hợp cho phép chọn nhánh động dựa trên logic tùy chỉnh.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+
+## Tổng quan
+`DynamicSelectorNode` là một node tổng hợp mạnh mẽ, giúp đưa logic động và hành vi kiểu state machine vào cây hành vi của bạn.
+
+Khác với **Selector** thông thường (thực thi các node con theo thứ tự cho đến khi một node thành công) hoặc **Sequence** (thực thi cho đến khi một node thất bại), `DynamicSelectorNode` giao việc chọn nhánh cho một lớp logic tùy chỉnh.
+
+Lớp logic này phải triển khai interface `IDynamicBranchSelector`. Nhờ đó, bạn tách biệt quá trình ra quyết định khỏi cấu trúc cây, cho phép xây dựng hành vi **linh hoạt, tái sử dụng và dễ kiểm thử**.
+
+### Ứng dụng chính:
+- **AI State Machine:** Chọn nhánh hành vi dựa trên trạng thái hiện tại của AI (Tuần tra, Tấn công, Chạy trốn...).
+- **Quyết định dựa trên dữ liệu:** Chọn hành động dựa vào dữ liệu trên Blackboard như máu, đạn, khoảng cách mục tiêu...
+- **Điều kiện phức tạp:** Xây dựng logic mà decorator thông thường không đáp ứng được.
+
+---
+
+## Cách hoạt động
+
+### Thành phần chính
+Hệ thống gồm 2 phần:
+1. Node DynamicSelectorNode
+2. Interface cho logic chọn nhánh
+
+### `IDynamicBranchSelector.cs`
+```csharp
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    /// <summary>
+    /// Interface cho logic chọn nhánh động của DynamicSelectorNode.
+    /// </summary>
+    public interface IDynamicBranchSelector
+    {
+        /// <summary>
+        /// Gọi một lần khi node được kích hoạt. Dùng để cache hoặc khởi tạo.
+        /// </summary>
+        void OnInitialize(GameObject ownerGameObject);
+
+        /// <summary>
+        /// Chọn nhánh con để thực thi dựa trên logic tùy chỉnh.
+        /// </summary>
+        bool TrySelectBranch(GameObject ownerGameObject, Blackboard blackboard, out int selectedIndex);
+    }
+}
+```
+
+---
+
+### `DynamicSelectorNode.cs`
+```csharp
+using UnityEngine;
+using ND_BehaviorTree;
+
+[NodeInfo("Dynamic Selector", "Composite/DynamicSelector", true, true, iconPath: "Assets/ND_BehaviorTree/NDBT/Icons/adaptation.png")]
+public class DynamicSelectorNode : CompositeNode
+{
+    [SerializeReference]
+    public IDynamicBranchSelector condition;
+
+    private int _runningChildIndex = -1;
+
+    protected override void OnEnter()
+    {
+        _runningChildIndex = -1;
+        condition?.OnInitialize(GetOwnerTreeGameObject());
+    }
+
+    protected override Status OnProcess()
+    {
+        TickServices();
+
+        if (_runningChildIndex != -1)
+        {
+            Node runningChild = children[_runningChildIndex];
+            Status childStatus = runningChild.Process();
+
+            if (childStatus == Status.Running)
+                return Status.Running;
+
+            runningChild.Reset();
+            _runningChildIndex = -1;
+            return childStatus;
+        }
+
+        if (condition == null)
+        {
+            Debug.LogError("DynamicSelectorNode chưa được gán điều kiện.", this);
+            return Status.Failure;
+        }
+
+        if (condition.TrySelectBranch(GetOwnerTreeGameObject(), blackboard, out int selectedIndex))
+        {
+            if (selectedIndex < 0 || selectedIndex >= children.Count)
+            {
+                Debug.LogError($"Index không hợp lệ: {selectedIndex}", this);
+                return Status.Failure;
+            }
+
+            Node newChild = children[selectedIndex];
+            Status newStatus = newChild.Process();
+
+            if (newStatus == Status.Running)
+                _runningChildIndex = selectedIndex;
+
+            return newStatus;
+        }
+
+        return Status.Failure;
+    }
+    
+    public override void Reset()
+    {
+        base.Reset();
+        _runningChildIndex = -1;
+    }
+}
+```
+
+---
+
+### Luồng thực thi
+Phương thức `OnProcess` hoạt động như sau:
+
+1. **Kiểm tra nhánh đang chạy** — Nếu có nhánh đang chạy, tiếp tục thực thi.
+2. **Chọn nhánh mới** — Nếu chưa có nhánh, gọi `TrySelectBranch`.
+3. **Thực thi nhánh** — Chạy nhánh được chọn và lưu lại nếu vẫn đang chạy.
+4. **Xử lý lỗi** — Trả về thất bại nếu không chọn được nhánh hoặc index không hợp lệ.
+
+<Aside type="note">
+**Hiệu quả:** Chỉ gọi `IDynamicBranchSelector` khi cần quyết định mới, tránh kiểm tra lại không cần thiết.
+</Aside>
+
+---
+
+## Ví dụ: AI dựa trên trạng thái
+
+### Mục tiêu
+AI có thể ở trạng thái **Thụ động**, **Cẩn trọng** hoặc **Hung hăng**, mỗi trạng thái ứng với một nhánh trong cây.
+
+---
+
+### 1. Định nghĩa Enum trạng thái và key Blackboard
+```csharp
+// AIState.cs
+public enum AIState
+{
+    Passive,
+    Cautious,
+    Aggressive
+}
+
+// BlackboardKeys.cs
+public static class BlackboardKeys
+{
+    public const string AIState = "AIState";
+}
+```
+
+---
+
+### 2. Triển khai `AIStateSelector`
+```csharp
+// AIStateSelector.cs
+using UnityEngine;
+using ND_BehaviorTree;
+
+[System.Serializable]
+public class AIStateSelector : IDynamicBranchSelector
+{
+    public void OnInitialize(GameObject ownerGameObject) { }
+
+    public bool TrySelectBranch(GameObject ownerGameObject, Blackboard blackboard, out int selectedIndex)
+    {
+        selectedIndex = -1;
+
+        if (!blackboard.TryGetEnumValue<AIState>(BlackboardKeys.AIState, out AIState currentState))
+        {
+            Debug.LogWarning("Không tìm thấy AIState.");
+            return false;
+        }
+
+        switch (currentState)
+        {
+            case AIState.Passive: selectedIndex = 0; return true;
+            case AIState.Cautious: selectedIndex = 1; return true;
+            case AIState.Aggressive: selectedIndex = 2; return true;
+        }
+        return false;
+    }
+}
+```
+
+---
+
+### 3. Sơ đồ cây
+```plaintext
+- Root
+  - DynamicSelectorNode (AIStateSelector)
+    - [0] Sequence (Tuần tra)
+    - [1] Sequence (Tìm chỗ ẩn nấp)
+    - [2] Sequence (Tấn công người chơi)
+```
+
+**Kết quả:** Khi giá trị `AIState` trên blackboard thay đổi, nhánh được thực thi cũng thay đổi theo.

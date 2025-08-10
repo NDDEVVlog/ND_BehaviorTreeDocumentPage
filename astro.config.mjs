@@ -80,6 +80,7 @@ export default defineConfig({
                                         { label: 'Random Selector', link: '/build-in-elements/nodes/composite-nodes/random-selector-node/' },
                                         { label: 'Selector', link: '/build-in-elements/nodes/composite-nodes/selector-node/' },
                                         { label: 'Sequence', link: '/build-in-elements/nodes/composite-nodes/sequence-node/' },
+                                        { label: 'Dynamic Selector', link: '/build-in-elements/nodes/composite-nodes/dynamic-selector-node/' },
                                     ]
                                 },
                                 {

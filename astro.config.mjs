@@ -172,6 +172,7 @@ export default defineConfig({
                 './src/styles/custom.css',
                 './src/styles/spelltechBox.css',
                 './src/styles/panic.css',
+                './src/styles/faq.css',
             ],
 
             plugins: [

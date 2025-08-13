@@ -1,0 +1,62 @@
+/* In ./src/styles/custom.css */
+
+/* Import a "handwritten" font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+
+.panic-box {
+  /* ... (all your other styles like border, background, etc.) */
+  border: 3px dashed var(--sl-color-orange-high);
+  background-color: var(--sl-color-orange-low);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  transform: rotate(-1.5deg);
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1);
+
+  /* --- ADD THIS LINE --- */
+  /* This applies the SVG filter we defined in the MDX file */
+  filter: url(#noisy-jiggle);
+}
+
+.panic-box-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  /* Straighten the header so it contrasts the crooked box */
+  transform: rotate(1.5deg);
+}
+
+.panic-box-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid var(--sl-color-white);
+  box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.panic-box-author {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--sl-color-heading);
+}
+
+.panic-box-message {
+  /* Use the imported "panicked" font */
+  font-family: 'Permanent Marker', cursive;
+  font-size: 1.8rem;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--sl-color-text-accent);
+  margin-bottom: 1.5rem;
+  padding: 0 1rem;
+}
+
+.panic-box-gif {
+  display: block;
+  max-width: 300px;
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 0.5rem;
+  border: 2px solid var(--sl-color-gray-5);
+}

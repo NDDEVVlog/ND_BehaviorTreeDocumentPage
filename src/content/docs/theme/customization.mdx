@@ -1,0 +1,286 @@
+---
+title: Customization
+description: Learn how to customize the theme to fit your needs.
+---
+
+import ContentRevealer from '../../../components/ContentRevealer.astro';
+
+{/* 
+  Use the component here. 
+  The `client:visible` directive tells Astro to load the component's JavaScript
+  only when the user scrolls it into view, which is great for performance.
+*/}
+<ContentRevealer client:visible>
+
+  {/* Everything below this line will be hidden until a button is clicked. */}
+  {/* The component's <slot /> will render all of this. */}
+
+  ## Customization with GraphView
+
+  ND_BehaviorTree is built on the Unity GraphView framework, which allows for extensive customization of the behavior tree editor's appearance and functionality. You can modify styles, layouts, and even the underlying logic to suit your project's needs.
+
+  However, to ensure the system functions correctly, you cannot freely modify the core layout structure of a node. Below is the required UXML template that you must use as a base for your custom nodes.
+
+  ### Node UXML Template
+
+  This file defines the visual hierarchy of a node. You must maintain this structure, especially the element names, for the editor scripts to find and manage them correctly.
+
+  ```xml title="NodeTemplate.uxml"
+  <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+      <ui:VisualElement name="node-border" class="node-border">
+          <ui:VisualElement name="main-container" class="main-container">
+              <ui:VisualElement name="top-port" class="port-container" />
+              <ui:VisualElement name="title" class="title">
+                  <ui:Image name="icon-image" class="icon-image" />
+                  <ui:VisualElement name="title-content-container">
+                      <ui:Label name="title-textfield" class="title-textfield" />
+                      <ui:Label name="type-label" class="type-label" />
+                  </ui:VisualElement>
+              </ui:VisualElement>
+              <ui:VisualElement name="details-container" class="details-container" />
+              <ui:VisualElement name="child-node-container" class="child-node-container" />
+              <ui:VisualElement name="task-node-content" class="task-node-content" />
+              <ui:VisualElement name="bottom-port" class="port-container" />
+              <ui:VisualElement name="input" style="display: none;" />
+              <ui:VisualElement name="output" style="display: none;" />
+          </ui:VisualElement>
+      </ui:VisualElement>
+  </ui:UXML>
+```
+### Base USS Stylesheet
+This file contains the base styles for all nodes. You can override these classes in your own .uss file to create a new theme.
+```css title="NodeElementUss.uss"
+/*
+================================================================================
+=== ND_BEHAVIORTREE Base THEME ===
+================================================================================
+*/
+/* === Base Node Border === */
+.node-border {
+    background-color: #383838;
+    border-color: #222222;
+    border-width: 2px;
+    border-radius: 12px;
+    padding: 2px;
+}
+
+/* === Main Container === */
+.main-container {
+    background-color: #4D4D4D;
+    border-radius: 10px;
+}
+
+/* === Title === */
+.title {
+    flex-direction: row;
+    align-items: center;
+    padding: 5px;
+}
+
+/* === Icon === */
+.icon-image {
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+/* === Title Container === */
+.title-content-container {
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* === Title Label === */
+.title-textfield {
+    font-size: 16px;
+    -unity-font-style: bold;
+    color: #E0E0E0;
+    background-color: transparent;
+    border-width: 0;
+    padding: 0;
+    margin: 0;
+}
+
+/* Remove the inner text input styling to align text properly */
+.title-textfield > #unity-text-input {
+    padding: 1px 0;
+    margin: 0;
+    background-color: transparent;
+}
+
+/* Style for when the text field is focused for editing */
+.title-textfield:focus {
+    background-color: #2F2F2F;
+    border-color:rgb(26, 115, 232);
+    border-width: 1px;
+}
+
+/* === Type Label === */
+.type-label {
+    font-size: 12px;
+    color: #A0A0A0; /* Lighter grey for secondary text */
+    margin-top: 2px;
+    -unity-font-style: italic;
+}
+
+
+/*
+================================================================================
+=== DETAILS CONTAINER (EXPOSED VARS & PROGRESS BARS) ===
+================================================================================
+*/
+.details-container {
+    padding: 4px 8px;
+    flex-direction: column;
+    display: none; /* Hidden by default, enabled via script if content exists */
+    background-color: rgba(0, 0, 0, 0.1);
+    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
+}
+
+/* Styles for exposed variables (Key-Value Pair) */
+.exposed-property {
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: 11px;
+    margin-top: 2px;
+}
+.exposed-property-label {
+    color: #B0B0B0;
+    margin-right: 5px;
+}
+.exposed-property-value {
+    color: #E0E0E0;
+    -unity-font-style: bold;
+}
+
+/* Styles for progress bars */
+.progress-bar {
+    margin-top: 4px;
+    margin-bottom: 2px;
+    height: 8px;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    overflow: hidden; /* This clips the fill element */
+}
+.progress-bar-fill {
+    background-color: #4CAF50; /* A nice green color for progress */
+    height: 100%;
+    width: 0%; /* Initial width, updated by script */
+    transition: width 0.1s linear; /* Smooth transition for updates */
+}
+
+
+/*
+================================================================================
+=== Child Node Container ===
+================================================================================
+*/
+.child-node-container {
+    min-height: 40px;
+    background-color: rgba(0, 0, 0, 0.15);
+    border: 1px dashed rgb(80, 80, 80);
+    border-radius: 3px;
+    margin: 5px 0;
+    padding: 5px;
+    flex-direction: column;
+}
+
+/* --- Individual Child Item Styling --- */
+.child-node-item {
+    background-color: #5A5A5A; /* Default child color */
+    border-radius: 6px;
+    border-width: 2px;
+    border-color: #383838;
+    margin-top: 5px;
+    padding: 5px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Specific color for Decorators */
+.decorator-child {
+    background-color: #3A5A3A; 
+    border-color: #2A4A2A;
+}
+
+/* Specific color for Services */
+.service-child {
+    background-color: #2D4F6A; 
+    border-color: #1E3A52;
+}
+
+.child-node-item .icon-image {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+}
+
+.child-node-item .title-label {
+    font-size: 14px;
+    -unity-font-style: normal;
+}
+
+/* --- TaskNode Specific Styling --- */
+.task-node .title,
+.task-node .child-node-container {
+    display: none;
+}
+.task-node .main-container {
+    padding: 15px;
+    min-height: 50px;
+    justify-content: center;
+    align-items: center;
+}
+.task-node-label {
+    font-size: 18px;
+    color: #E0E0E0;
+}
+
+/* --- Port Styling --- */
+.port-container {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 16px;
+    width: 100%;
+}
+
+
+
+/*
+================================================================================
+=== Node Outline ===
+================================================================================
+*/
+
+/* Style for a node that is currently running */
+.running > .node-border {
+    border-color: #FFD700; /* Bright Gold/Yellow */
+    border-width: 3px;
+    box-shadow: 0 0 10px 2px rgba(255, 215, 0, 0.5); /* Add a subtle glow */
+}
+
+/* Optional: Style for a node that just returned Success */
+.success > .node-border {
+    border-color: #4CAF50; /* Green */
+    border-width: 3px;
+}
+
+/* Optional: Style for a node that just returned Failure */
+.failure > .node-border {
+    border-color: #F44336; /* Red */
+    border-width: 3px;
+}
+
+/* Optional: Style for a node it is being selected */
+.selected>.node-border {
+    border-color: #008cff;
+    border-width: 3px;
+    box-shadow: 0 0 10px 2px rgba(0, 140, 255, 0.4);
+}
+```
+</ContentRevealer>

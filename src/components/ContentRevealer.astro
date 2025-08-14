@@ -1,0 +1,195 @@
+---
+// No server-side logic needed
+---
+
+<div id="content-revealer-wrapper">
+
+  <!-- ========================================================= -->
+  <!-- This section is visible initially -->
+  <!-- ========================================================= -->
+  <div id="initial-view">
+    <p>Look into the picture below. What do you think?</p>
+    <img
+      src="https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/NormalThemeBehaviorTree.PNG"
+      alt="ND_BehaviorTree NormalTheme"
+    />
+
+    <div class="button-container">
+      <button class="starlight-button" data-choice="great">I think the UI is great.</button>
+      <button class="starlight-button" data-choice="boring">The UI is boring.</button>
+    </div>
+  </div>
+
+  <!-- ==================================================================== -->
+  <!-- This section is hidden initially -->
+  <!-- ==================================================================== -->
+  <div id="revealed-view" class="hidden">
+    <div id="quote-box" class="quote-box">
+      
+      <div class="gif-container">
+        <img id="response-gif" class="hidden" src="" alt="Response GIF" />
+      </div>
+
+      <div class="author-info">
+        <img
+          src="https://avatars.githubusercontent.com/u/111946313?v=4"
+          alt="NDDEVGAME Avatar"
+          class="avatar"
+        />
+        <strong>NDDEVGAME</strong>
+      </div>
+      <!-- SỬA LỖI: Thêm class "markdown-content" để tạo style riêng cho link nếu cần -->
+      <div id="quote-text" class="quote-content markdown-content"></div>
+    </div>
+
+    <hr />
+    <slot />
+  </div>
+
+</div>
+
+<!-- ========================================================================= -->
+<!-- The corrected client-side JavaScript -->
+<!-- ========================================================================= -->
+<script>
+  // Store all dynamic content in objects for easy access
+  const content = {
+    great: {
+      // SỬA LỖI 1: Sửa lại chuỗi văn bản
+      // - Thêm dấu " và dấu , ở cuối.
+      // - Chuyển đổi link Markdown thành thẻ <a> của HTML.
+      quote: `Awesome! I'm so glad you think so! Thank you! You can try more themes I made at <a href="/ND_BehaviorTreeDocumentPage/theme/customize/">More Themes</a>.`,
+      gif: "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2dtYXZqNjMwcDFuNzVpaGwyZHVpcDJsMGJwaHBwdDBqOXVyZGI0ciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/8WU38cT0Rw9hossKwe/giphy.gif",
+      theme: "happy-theme"
+    },
+    boring: {
+      quote: "Oh, I understand. The great thing is, you can customize it to make it perfect for you.",
+      gif: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbGhqMDRjdGdjdDIxZmc4N2NiZDNleHN0eHh0dGhoM3J0bmZ5dTJkeCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RFz6TYvbiTr8DDAP72/giphy.gif",
+      theme: "sad-theme"
+    }
+  };
+
+  const initialView = document.getElementById('initial-view');
+  const revealedView = document.getElementById('revealed-view');
+  const quoteTextElement = document.getElementById('quote-text');
+  const quoteBox = document.getElementById('quote-box');
+  const responseGif = document.getElementById('response-gif');
+  const buttons = initialView.querySelectorAll('button');
+
+  buttons.forEach(button => {
+    button.addEventListener('click', () => {
+      const choice = button.dataset.choice;
+
+      if (choice && content[choice]) {
+        const selectedContent = content[choice];
+
+        // SỬA LỖI 2: Dùng .innerHTML thay vì .textContent
+        // Điều này cho phép trình duyệt hiển thị thẻ <a> dưới dạng một liên kết có thể nhấp vào.
+        quoteTextElement.innerHTML = selectedContent.quote;
+        
+        quoteBox.classList.add(selectedContent.theme);
+        responseGif.src = selectedContent.gif;
+        responseGif.classList.remove('hidden');
+      }
+
+      initialView.classList.add('hidden');
+      revealedView.classList.remove('hidden');
+    });
+  });
+</script>
+
+
+<!-- ========================================================= -->
+<!-- The styles (thêm style cho link) -->
+<!-- ========================================================= -->
+<style>
+  .hidden {
+    display: none;
+  }
+  img {
+    max-width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    margin: 1rem 0;
+  }
+  .button-container {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .starlight-button {
+    background-color: var(--sl-color-accent-low);
+    color: var(--sl-color-accent-high);
+    border: 1px solid var(--sl-color-accent-high);
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .starlight-button:hover {
+    background-color: var(--sl-color-accent-high);
+    color: var(--sl-color-white);
+  }
+  .quote-box {
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin: 2rem 0;
+    border-width: 2px;
+    border-style: solid;
+    display: flex;
+    flex-direction: column;
+  }
+  .quote-box.happy-theme {
+    border-color: var(--sl-color-green-high);
+    background-color: var(--sl-color-green-low);
+  }
+  .quote-box.sad-theme {
+    border-color: var(--sl-color-blue-high);
+    background-color: var(--sl-color-blue-low);
+  }
+  .author-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    margin: 0;
+  }
+  .author-info strong {
+    font-size: 1.2rem;
+  }
+  .quote-content {
+    padding-left: calc(64px + 1rem);
+    margin-top: 0.5rem;
+  }
+  .gif-container {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  #response-gif {
+    max-height: 150px;
+    width: auto;
+    border-radius: 0.5rem;
+    margin: 0;
+    display: inline-block;
+  }
+  hr {
+    margin: 2rem 0;
+    border-style: solid;
+    border-color: var(--sl-color-gray-5);
+  }
+
+  /* SỬA LỖI: Thêm style cho thẻ <a> để nó trông giống một link */
+  .markdown-content a {
+    color: var(--sl-color-accent-high);
+    text-decoration: underline;
+  }
+  .markdown-content a:hover {
+    color: var(--sl-color-accent-low);
+  }
+</style>

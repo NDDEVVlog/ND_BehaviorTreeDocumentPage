@@ -152,9 +152,18 @@ export default defineConfig({
                     ],
                 },
                 {
-                    label: 'Reference',
-                    autogenerate: { directory: 'reference' },
+                    label: 'Theme',
+                    items: [
+                        { label: 'Overview', link: '/theme/overview/' },
+                        { label: 'Customization', link: '/theme/customization/' },
+                        { label: 'Apply Theme',link: '/theme/apply-theme/' },
+                        { label: 'Moding Individual Node Theme', link: '/theme/individual-node-theme/' }
+                    ]
                 },
+                // {
+                //     label: 'Reference',
+                //     autogenerate: { directory: 'reference' },
+                // },
                 {
                     label: 'License & Contribution', badge: { text: 'You may care', variant: 'caution'},
                     link: '/license-contribution/',

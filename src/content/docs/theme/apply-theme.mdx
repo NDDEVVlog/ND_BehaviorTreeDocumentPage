@@ -1,0 +1,56 @@
+---
+title: Applying Your Custom Theme
+description: Learn how to apply your custom .uss stylesheet to the Behavior Tree editor in Unity.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+import PasswordPuzzle from '../../../components/PasswordPuzzle.astro';
+
+Once you have created your custom `.uss` file, the final step is to apply it within Unity. This guide will show you how to locate the settings and attach your new theme.
+
+## Applying the Stylesheet
+
+<Steps>
+1.  **Open the Settings Asset via the Menu**
+
+    From the top menu bar in Unity, navigate to **ND_BehaviorTree > Settings Asset**. This action will automatically find and select the settings asset in your Project window, showing its properties in the Inspector.
+
+2.  **Inspect the Asset**
+
+    With the settings asset selected, take a look at the Inspector window. You're ready for the next step.
+</Steps>
+
+{/*
+  CORRECTED COMMENT SYNTAX:
+  The puzzle component goes here.
+  It takes the place of the old Step 3.
+*/}
+<PasswordPuzzle client:visible password="SubcribeToNDDEVGAMEandSORA">
+
+  {/* 
+    The "prize" is the rest of the steps. We nest a new Steps component 
+    and use start="3" to continue the numbering correctly.
+  */}
+  <Steps start={3}>
+    3.  **Attach Your Stylesheet**
+
+        In the Inspector, locate the `Node Style Sheets` section. You will see a list of style entries.
+        
+        Find the entry where the **Node Type** is `Default`. Drag your custom `.uss` file from the Project window into the **Style Sheet** field for this entry.
+        
+        
+
+    4.  **See the Changes!**
+
+        Open (or re-open) the Behavior Tree editor window. Your new styles should now be applied to the nodes, completely changing their appearance according to your theme!
+  </Steps>
+
+</PasswordPuzzle>
+
+### Understanding the Style Types
+
+As you can see in the settings, there are multiple style types:
+
+-   **Default:** This is the main stylesheet that controls the overall appearance of most nodes (Composites, Decorators, Services, etc.). This is the one you will usually want to change.
+-   **Auxiliary:** This controls the appearance of smaller, secondary nodes or elements that are part of a larger node, such as Decorator and Service items.
+-   **Port:** This specifically controls the styling of the input and output ports on the nodes.

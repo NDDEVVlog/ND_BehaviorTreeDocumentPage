@@ -1,0 +1,278 @@
+---
+title: The Blackboard System
+description: Learn how to use the Blackboard system to manage AI memory, share data between nodes, and configure agents.
+---
+import { Card, CardGrid, Aside, Code } from '@astrojs/starlight/components';
+
+The **Blackboard** is a central component of the Behavior Tree system.  
+It acts as a shared memory or data-context for an individual AI agent.  
+Any node within a tree can read from or write to the Blackboard, allowing them to share information and coordinate their actions without being directly connected.
+
+This system is designed to be **type-safe**, **flexible**, and easy to use both in the Unity Editor and at runtime.
+
+---
+
+## 1. Core Concepts
+
+The system is composed of three main parts: the **Blackboard** asset (the container), **Key** assets (the data definitions), and the **Blackboard Overrides** component (for per-instance configuration).
+
+<CardGrid>
+    <Card title="Blackboard Asset" icon="collection">
+        The container. It holds a list of Key assets that define the "memory structure" for an AI. Each Behavior Tree asset has a reference to a default Blackboard.
+    </Card>
+    <Card title="Key Assets" icon="key">
+        A Key represents a single piece of typed data (e.g., an integer for health, a `GameObject` for a target). They are `ScriptableObject`s, making them reusable and easy to manage.
+    </Card>
+    <Card title="Blackboard Overrides" icon="adjustments">
+        A component used on a `GameObject` in the scene to set initial, instance-specific values for Blackboard keys, overriding the defaults set in the Blackboard asset.
+    </Card>
+</CardGrid>
+
+### The Runtime Clone
+
+Your Blackboard asset is a **template**.  
+When the `BehaviorTreeRunner` starts, it creates a deep **clone** of the Blackboard and all its Keys.  
+This ensures each AI agent in your scene has its own separate, unique memory.  
+Changes made to one agent's Blackboard will **not** affect any other agent.
+
+---
+
+## 2. Setting Up a Blackboard
+
+### Step 1: Create Custom Key Types
+
+Before adding data to a Blackboard, define a Key asset type for that data.  
+The system uses a generic base class, `Key<T>`, to provide type safety.
+
+**Example: `IntKey.cs`**
+
+```csharp
+// File: Assets/Scripts/BehaviorTree/Keys/IntKey.cs
+using UnityEngine;
+using ND_BehaviorTree; 
+
+[CreateAssetMenu(menuName = "ND_BehaviorTree/Keys/Int Key", fileName = "New Int Key")]
+public class IntKey : Key<int> { }
+```
+
+**Example: `TransformKey.cs`**
+
+```csharp
+// File: Assets/Scripts/BehaviorTree/Keys/TransformKey.cs
+using UnityEngine;
+using ND_BehaviorTree;
+
+[CreateAssetMenu(menuName = "ND_BehaviorTree/Keys/Transform Key", fileName = "New Transform Key")]
+public class TransformKey : Key<Transform> { }
+```
+
+<Aside>
+Most common Unity types are already supported by the built-in `BlackboardOverride` system.  
+For custom classes, you may need to extend the override system if you want to set their values in the Inspector.
+</Aside>
+
+---
+
+### Step 2: Create a Blackboard Asset
+
+- In the Project window, right-click or use the Assets menu.  
+- Navigate to **Create > ND_BehaviorTree > Blackboard**.  
+- Name your new asset (e.g., `Enemy_Blackboard`).  
+
+![Create Blackboard](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/CreateBlackboard.png)
+
+---
+
+### Step 3: Add Keys to the Blackboard
+
+- Select the Blackboard asset.  
+- Use the Inspector to create and add new Key assets to its list.  
+- Each key must have a **unique Key Name** (e.g., `"Health"`, `"Target"`, `"PatrolPoint"`).  
+
+![Add Key](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/AddKeyToBlackboard.png)
+
+You can also manage the Blackboard directly from the Behavior Tree Editor window:
+
+![Blackboard Editor](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/CreateBlackboard1.PNG)
+
+---
+
+## 3. Runtime API and Usage
+
+You will typically interact with the Blackboard from within a **custom Action Node** or from an **initialization script**.
+
+### Accessing the Blackboard
+
+From within any Node, access its runtime Blackboard instance:
+
+```csharp
+// Inside a custom node script (child of ActionNode)
+var currentBlackboard = blackboard; // or ownerTree.blackboard
+```
+
+### Reading Values (Type-Safe)
+
+```csharp
+protected override Status OnProcess()
+{
+    // Get an IntKey named "Health"
+    int currentHealth = blackboard.GetValue<int>("Health");
+
+    // Get a GameObjectKey named "PlayerTarget"
+    GameObject player = blackboard.GetValue<GameObject>("PlayerTarget");
+
+    if (player != null)
+    {
+        // ... logic to move towards the player
+    }
+
+    return Status.Success;
+}
+```
+
+### Writing Values (Type-Safe)
+
+```csharp
+// Find the closest enemy and store it in the Blackboard
+GameObject newTarget = FindClosestEnemy();
+bool success = blackboard.SetValue<GameObject>("CurrentTarget", newTarget);
+
+if (!success)
+{
+    Debug.LogError("Failed to set CurrentTarget on the blackboard!");
+}
+```
+
+---
+
+## 4. Per-Instance Configuration
+
+Different AI instances can have different starting values (e.g., different patrol points).  
+This is handled by the **BehaviorTreeRunner** and **BlackboardOverride**.
+
+### Step 1: Use `BehaviorTreeRunner`
+
+- Attach `BehaviorTreeRunner` to your AI GameObject.  
+- Assign your Behavior Tree and Blackboard assets.
+
+### Step 2: Add Blackboard Overrides
+
+- Add entries to the `blackboardOverrides` list.  
+- Enter the **exact Key Name** and assign its value.  
+
+![Override Example](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/BlackboardOverrideExample.png)
+
+When the game starts, the runner will:
+
+1. Clone the master Blackboard asset.  
+2. Apply overrides from the list.  
+
+---
+
+### Step 3: Programmatic Initialization (Optional)
+
+For complex initialization, use a script:
+
+```csharp
+using UnityEngine;
+using ND_BehaviorTree;
+
+[RequireComponent(typeof(BehaviorTreeRunner))]
+public class EnemyAI : MonoBehaviour
+{
+    [SerializeField] private Transform patrolStartPoint;
+    [SerializeField] private float startingHealth = 100f;
+
+    private BehaviorTreeRunner btRunner;
+
+    void Start()
+    {
+        btRunner = GetComponent<BehaviorTreeRunner>();
+        
+        if (btRunner.RuntimeTree != null && btRunner.RuntimeTree.blackboard != null)
+        {
+            InitializeBlackboard();
+        }
+        else
+        {
+            Debug.LogError("RuntimeTree not available on Start!");
+        }
+    }
+
+    private void InitializeBlackboard()
+    {
+        Blackboard runtimeBlackboard = btRunner.RuntimeTree.blackboard;
+
+        runtimeBlackboard.SetValue<Transform>("PatrolPoint", patrolStartPoint);
+        runtimeBlackboard.SetValue<float>("Health", startingHealth);
+    }
+}
+```
+
+---
+
+## 5. Source Code Reference
+
+The system is primarily composed of four scripts:
+
+<Code lang="cs" title="ND_BehaviorTree/Blackboard.cs" code={`
+// Blackboard.cs
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    [CreateAssetMenu(fileName = "New Blackboard", menuName = "ND_BehaviorTree/Blackboard")]
+    public class Blackboard : ScriptableObject
+    {
+        public List<Key> keys = new List<Key>();
+
+        public T GetValue<T>(string keyName) { ... }
+        public bool SetValue<T>(string keyName, T value) { ... }
+        public bool SetValueObject(string keyName, object value) { ... }
+        public Blackboard Clone() { ... }
+    }
+}
+`} />
+
+<Code lang="cs" title="ND_BehaviorTree/Key.cs" code={`
+// Key.cs
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    public abstract class Key : ScriptableObject
+    {
+        [Tooltip("Unique key name within a Blackboard.")]
+        public string keyName = string.Empty;
+
+        public abstract object GetValueObject();
+        public abstract void SetValueObject(object value);
+        public abstract System.Type GetValueType();
+    }
+}
+`} />
+
+<Code lang="cs" title="ND_BehaviorTree/KeyGeneric.cs (Key<T>)" code={`
+// KeyGeneric.cs
+using System;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    public abstract class Key<T> : Key
+    {
+        [SerializeField] private T value;
+        public event Action ValueChanged;
+
+        public override object GetValueObject() => value;
+        public T GetValue() => value;
+        public T GetValue(Blackboard blackboard) => blackboard.GetValue<T>(keyName);
+
+        public void SetValue(T newValue) { ... }
+        public override void SetValueObject(object newValue) { ... }
+        public override System.Type GetValueType() => typeof(T);
+    }
+}
+`} />

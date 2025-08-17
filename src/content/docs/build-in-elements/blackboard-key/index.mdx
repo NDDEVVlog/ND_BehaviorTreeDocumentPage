@@ -1,0 +1,31 @@
+---
+title: The Key Overview
+description: Introduction to the Key system for managing Blackboard data in ND_BehaviorTree.
+---
+
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+
+# Key System Overview
+
+The **Key** system is a core part of ND_BehaviorTree's Blackboard. It allows you to store, retrieve, and manage typed data for AI logic in a safe and flexible way.
+
+Keys are used to identify and access values on the Blackboard. Each key has a name and a type, ensuring that only compatible data is stored and retrieved.
+
+<CardGrid>
+  <Card title="Key" icon="key">
+    The basic key type. Used for generic access to Blackboard values.
+  </Card>
+  <Card title="Key < T > ;" icon="key">
+    A typed key. Ensures type safety when reading or writing values on the Blackboard.
+  </Card>
+</CardGrid>
+
+<Aside type="note">
+Using typed keys (`Key<T>`) helps prevent bugs and makes your AI logic easier to maintain.
+</Aside>
+
+## Why Use Keys?
+
+- **Type Safety:** Prevents accidental type mismatches.
+- **Flexibility:** Supports any data type needed for your AI.
+- **Organization:** Keeps your Blackboard clean and easy to manage.

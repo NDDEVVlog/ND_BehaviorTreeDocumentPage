@@ -1,0 +1,425 @@
+---
+title: The Key System
+description: Learn how to use the Key and Key<T> classes in the ND_BehaviorTree framework to manage typed data within a Blackboard for AI behavior trees.
+---
+import { Card, CardGrid, Aside, Code } from '@astrojs/starlight/components';
+
+The **Key** system is a core component of the ND_BehaviorTree framework, enabling type-safe data storage and retrieval within a **Blackboard**. Each **Key** represents a uniquely named data entry (e.g., an `int` for health, a `NavMeshAgent` for navigation) in the Blackboard, which serves as the shared memory for an AI agent. This guide focuses on the differences between the abstract `Key` class and the generic **`Key<T>`** class, their respective APIs, and when to use each, with practical examples.
+
+---
+
+## 1. Core Concepts
+
+### Key
+The `Key` class is an abstract `ScriptableObject` that defines the base structure for all keys in the Blackboard system. It provides generic methods (`GetValueObject`, `SetValueObject`) to handle values as `object`s, suitable for dynamic or type-agnostic operations.
+
+### `Key<T>`
+The **`Key<T>`** class is a generic, type-safe implementation of `Key`. It allows you to define keys for specific data types (e.g., **`Key<int>`**, **`Key<NavMeshAgent>`**) and provides type-safe methods (`GetValue`, `SetValue`) for direct access and modification.
+
+<CardGrid>
+    <Card title="Key (Abstract Base Class)" icon="key">
+        The foundation for all keys. Uses `GetValueObject` and `SetValueObject` for generic value handling. Extended by **`Key<T>`** for type-specific keys.
+    </Card>
+    <Card title="`Key<T>` (Generic Implementation)" icon="code">
+        A type-safe key for a specific data type `T`. Provides `GetValue` and `SetValue` for compile-time-checked access.
+    </Card>
+</CardGrid>
+
+<Aside>
+Use **`Key<T>`** for type-safe operations in most cases. The abstract `Key` class is best for generic or dynamic scenarios where the type is unknown at compile time.
+</Aside>
+
+---
+
+## 2. Key vs. `Key<T>`
+
+| Feature | Key (Abstract) | `Key<T>` |
+|---------|----------------|----------|
+| **Type Safety** | Not type-safe; uses `object` | Type-safe for type `T` |
+| **Access Methods** | `GetValueObject`, `SetValueObject` | `GetValue`, `SetValue`, `GetValue(blackboard)` |
+| **Use Case** | Dynamic key handling, iteration, generic tools | Type-specific data storage and manipulation |
+| **Inspector Support** | Limited; requires custom editors | Native support for Unity types (e.g., `NavMeshAgent`) |
+| **Error Handling** | Runtime type checking/casting | Compile-time type checking |
+| **Example Usage** | Iterating over all keys, generic scripts | Accessing specific types like `NavMeshAgent` |
+
+### When to Use `Key`
+- **Dynamic Type Handling**: When the key type is unknown at compile time (e.g., iterating over all keys in a Blackboard).
+- **Generic Tools**: For debug tools or scripts that process keys without specific type assumptions.
+- **Flexible Inspector Assignment**: When you want to assign any `Key` asset in the Inspector and handle types at runtime.
+
+**API**:
+- `object GetValueObject()`: Returns the key’s value as an `object` (requires casting).
+- `void SetValueObject(object value)`: Sets the key’s value (requires type checking).
+- `Type GetValueType()`: Returns the key’s value type.
+
+### When to Use `Key<T>`
+- **Type-Safe Operations**: When you know the key’s type (e.g., `NavMeshAgent`) and want compile-time safety.
+- **Node Implementations**: For Behavior Tree nodes that work with specific data types.
+- **Inspector Integration**: When leveraging Unity’s Inspector for type-specific fields.
+
+**API**:
+- `T GetValue()`: Returns the key’s value as type `T`.
+- `T GetValue(Blackboard blackboard)`: Retrieves the value from the Blackboard using the key’s `keyName`.
+- `void SetValue(T newValue)`: Sets the key’s value with type safety.
+- `event Action ValueChanged`: Invoked when the value changes.
+
+---
+
+## 3. Setting Up Keys
+
+### Step 1: Create a Custom `Key<T>` Type
+Define a custom key by inheriting from **`Key<T>`**. For example, to store a `NavMeshAgent`:
+
+<Code lang="cs" title="NavMeshAgentKey.cs" code={`
+using UnityEngine;
+using UnityEngine.AI;
+using ND_BehaviorTree;
+
+[CreateAssetMenu(menuName = "ND_BehaviorTree/Keys/NavMeshAgent Key", fileName = "New NavMeshAgent Key")]
+public class NavMeshAgentKey : Key<NavMeshAgent> { }
+`} />
+
+### Step 2: Add to Blackboard
+1. Create a `Blackboard` asset (**Assets > Create > ND_BehaviorTree > Blackboard**).
+2. In the Inspector, add a key (e.g., `NavMeshAgent Key`) and set its `keyName` (e.g., `Agent`).
+
+###-Step 3: Support Blackboard Overrides
+To allow Inspector overrides, add to `BlackboardOverride.cs`:
+
+<Code lang="cs" title="ND_BehaviorTree/BlackboardOverride.cs (Snippet)" code={`
+[Serializable]
+public class OverrideDataNavMeshAgent : OverrideDataValue<NavMeshAgent> { }
+`} />
+
+---
+
+## 4. API Usage Examples
+
+### Example 1: Using `Key` for Generic Access
+This example uses the abstract `Key` class to access a value dynamically, requiring runtime type checking.
+
+<Code lang="cs" title="Using Key (Generic Object Access)" code={`
+using UnityEngine;
+using ND_BehaviorTree;
+
+public class DebugKeyNode : ActionNode
+{
+    [SerializeField] private Key key; // Reference to any Key asset
+
+    protected override Status OnProcess()
+    {
+        // Get value as an object (requires casting)
+        object value = key.GetValueObject();
+        if (value is NavMeshAgent agent)
+        {
+            Debug.Log($"Found NavMeshAgent on GameObject: {agent.gameObject.name}");
+            return Status.Success;
+        }
+        else
+        {
+            Debug.LogWarning($"Key '{key.keyName}' is not a NavMeshAgent!");
+            return Status.Failure;
+        }
+    }
+}
+`} />
+
+**When to Use**:
+- When the key type is unknown or varies.
+- For generic debugging or logging.
+
+**Drawbacks**:
+- Requires casting, risking runtime errors.
+- Less readable due to type checks.
+
+---
+
+### Example 2: Using `Key` Reference for `NavMeshAgent`
+This example uses the provided code (`public Key agentKey; agent = blackboard.GetValue<NavMeshAgent>(agentKey.keyName);`) to move an AI agent to a destination.
+
+<Code lang="cs" title="Using Key Reference for NavMeshAgent" code={`
+using UnityEngine;
+using UnityEngine.AI;
+using ND_BehaviorTree;
+
+public class MoveToDestinationNode : ActionNode
+{
+    [SerializeField] private Key agentKey; // Reference to any Key asset
+    [SerializeField] private string destinationKeyName = "Destination";
+    [SerializeField] private float moveSpeed = 5f;
+
+    protected override Status OnProcess()
+    {
+        // Get NavMeshAgent using the Key's name
+        NavMeshAgent agent = blackboard.GetValue<NavMeshAgent>(agentKey.keyName);
+        if (agent == null)
+        {
+            Debug.LogWarning($"No NavMeshAgent found for key '{agentKey.keyName}'!");
+            return Status.Failure;
+        }
+
+        // Get destination position
+        Vector3 destination = blackboard.GetValue<Vector3>(destinationKeyName);
+        if (destination == Vector3.zero)
+        {
+            Debug.LogWarning($"No valid destination found for key '{destinationKeyName}'!");
+            return Status.Failure;
+        }
+
+        // Set NavMeshAgent destination
+        agent.SetDestination(destination);
+        agent.speed = moveSpeed;
+
+        // Check if the agent has reached the destination
+        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+        {
+            Debug.Log("Agent reached destination!");
+            return Status.Success;
+        }
+
+        return Status.Running;
+    }
+}
+`} />
+
+**When to Use**:
+- When flexibility is needed to assign any `Key` in the Inspector.
+- When integrating with existing systems that use abstract `Key` references.
+
+**Drawbacks**:
+- Relies on `keyName` matching a `NavMeshAgent` key in the Blackboard.
+- No compile-time guarantee of type correctness.
+
+---
+
+### Example 3: Using `Key<T>` for `NavMeshAgent`
+This example uses a type-safe **`Key<NavMeshAgent>`** for the same navigation task, leveraging the `GetValue(blackboard)` API.
+
+<Code lang="cs" title="Using Key<NavMeshAgent> (Type-Safe)" code={`
+using UnityEngine;
+using UnityEngine.AI;
+using ND_BehaviorTree;
+
+[CreateAssetMenu(menuName = "ND_BehaviorTree/Keys/NavMeshAgent Key", fileName = "New NavMeshAgent Key")]
+public class NavMeshAgentKey : Key<NavMeshAgent> { }
+
+public class MoveToDestinationNodeTypeSafe : ActionNode
+{
+    [SerializeField] private NavMeshAgentKey agentKey; // Reference to NavMeshAgentKey
+    [SerializeField] private string destinationKeyName = "Destination";
+    [SerializeField] private float moveSpeed = 5f;
+
+    protected override Status OnProcess()
+    {
+        // Type-safe access to NavMeshAgent
+        NavMeshAgent agent = agentKey.GetValue(blackboard);
+        if (agent == null)
+        {
+            Debug.LogWarning($"No NavMeshAgent found for key '{agentKey.keyName}'!");
+            return Status.Failure;
+        }
+
+        // Get destination position
+        Vector3 destination = blackboard.GetValue<Vector3>(destinationKeyName);
+        if (destination == Vector3.zero)
+        {
+            Debug.LogWarning($"No valid destination found for key '{destinationKeyName}'!");
+            return Status.Failure;
+        }
+
+        // Set NavMeshAgent destination
+        agent.SetDestination(destination);
+        agent.speed = moveSpeed;
+
+        // Check if the agent has reached the destination
+        if (!agent.pathPending && agent.remainingDistance <= agent.stoppingDistance)
+        {
+            Debug.Log("Agent reached destination!");
+            return Status.Success;
+        }
+
+        return Status.Running;
+    }
+}
+`} />
+
+**When to Use**:
+- When you know the key stores a `NavMeshAgent`.
+- For type-safe, maintainable node implementations.
+- When leveraging Unity’s Inspector for specific types.
+
+**Advantages**:
+- Compile-time type checking.
+- Cleaner API with `agentKey.GetValue(blackboard)`.
+- Better Inspector integration (only `NavMeshAgentKey` assets can be assigned).
+
+---
+
+### Example 4: Setting Values with `Key` and `Key<T>`
+This example shows how to set a `NavMeshAgent` value using both approaches.
+
+<Code lang="cs" title="Setting NavMeshAgent Values" code={`
+using UnityEngine;
+using UnityEngine.AI;
+using ND_BehaviorTree;
+
+public class InitializeAgentNode : ActionNode
+{
+    [SerializeField] private Key agentKey; // Abstract Key reference
+    [SerializeField] private NavMeshAgentKey agentKeyTyped; // Type-safe Key<NavMeshAgent>
+    [SerializeField] private NavMeshAgent agentToSet; // Agent to assign
+
+    protected override Status OnProcess()
+    {
+        // Option 1: Set using abstract Key and Blackboard API
+        bool success = blackboard.SetValueObject(agentKey.keyName, agentToSet);
+        if (!success)
+        {
+            Debug.LogWarning($"Failed to set '{agentKey.keyName}' using SetValueObject!");
+            return Status.Failure;
+        }
+
+        // Option 2: Set using type-safe Key<NavMeshAgent>
+        if (agentKeyTyped != null)
+        {
+            agentKeyTyped.SetValue(agentToSet);
+            Debug.Log($"Set NavMeshAgent for key '{agentKeyTyped.keyName}' using SetValue.");
+        }
+
+        // Option 3: Set using type-safe Blackboard API
+        success = blackboard.SetValue<NavMeshAgent>(agentKey.keyName, agentToSet);
+        if (!success)
+        {
+            Debug.LogWarning($"Failed to set '{agentKey.keyName}' using SetValue!");
+            return Status.Failure;
+        }
+
+        Debug.Log($"Successfully set NavMeshAgent for key '{agentKey.keyName}'");
+        return Status.Success;
+    }
+}
+`} />
+
+**Key Points**:
+- Use `SetValue<T>` or `SetValue` for type-safe setting (preferred).
+- Use `SetValueObject` for dynamic or generic operations.
+- Use `Key<T>.SetValue` when directly manipulating a typed key.
+
+---
+
+## 5. Setting Up and Using Keys in Unity
+
+1. **Create Key Assets**:
+   - For `Key<T>`, create an asset (e.g., **Assets > Create > ND_BehaviorTree > Keys > NavMeshAgent Key**).
+   - Set a unique `keyName` (e.g., `Agent`).
+
+2. **Add to Blackboard**:
+   - Create a `Blackboard` asset and add the key in the Inspector.
+   - Ensure the `keyName` matches what nodes expect.
+
+3. **Configure Overrides**:
+   - Add a `BlackboardOverride` component to an AI GameObject.
+   - Set initial values (e.g., assign a `NavMeshAgent`) for the key.
+
+4. **Assign in Nodes**:
+   - For `Key`, assign any `Key` asset in the Inspector, but ensure its `keyName` matches a `NavMeshAgent` key.
+   - For **`Key<T>`**, assign a specific `NavMeshAgentKey` asset.
+
+<Aside>
+For `NavMeshAgent` support in `BlackboardOverride`, ensure `OverrideDataNavMeshAgent` is defined in `BlackboardOverride.cs`.
+</Aside>
+
+---
+
+## 6. Common Pitfalls and Solutions
+
+- **Missing Key**: `blackboard.GetValue<T>(keyName)` returns `null` if the key doesn’t exist.
+  - **Solution**: Verify the `keyName` in the Blackboard Inspector.
+- **Type Mismatch**: Using `Key` with `GetValue<T>` risks errors if the type doesn’t match.
+  - **Solution**: Use **`Key<T>`** for guaranteed type safety.
+- **Inspector Errors**: Assigning a `Key` with the wrong type causes runtime issues.
+  - **Solution**: Use **`Key<T>`** to restrict Inspector assignments.
+- **Runtime Clones**: Blackboards are cloned at runtime, so changes are instance-specific.
+  - **Solution**: Use `BehaviorTreeRunner` to manage clones.
+
+---
+
+## 7. Best Practices
+- **Use `Key<T>` for Type Safety**: Prefer **`Key<NavMeshAgent>`** over `Key` for specific types.
+- **Unique Key Names**: Ensure `keyName` is unique within the Blackboard.
+- **Validate Values**: Check for `null` when accessing keys.
+- **Leverage Overrides**: Use `BlackboardOverride` for instance-specific values.
+- **Test in Editor**: Inspect runtime Blackboard clones (named “(Runtime Clone)”) to verify values.
+
+---
+
+## 8. Source Code Reference
+
+<Code lang="cs" title="ND_BehaviorTree/Key.cs" code={`
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    public abstract class Key : ScriptableObject
+    {
+        [Tooltip("Unique key name within a Blackboard.")]
+        public string keyName = string.Empty;
+
+        public abstract object GetValueObject();
+        public abstract void SetValueObject(object value);
+        public abstract System.Type GetValueType();
+    }
+}
+`} />
+
+<Code lang="cs" title="ND_BehaviorTree/KeyGeneric.cs (Key<T>)" code={`
+using System;
+using UnityEngine;
+
+namespace ND_BehaviorTree
+{
+    public abstract class Key<T> : Key
+    {
+        [SerializeField] private T value;
+        public event Action ValueChanged;
+
+        public override object GetValueObject() => value;
+        public T GetValue() => value;
+        public T GetValue(Blackboard blackboard) => blackboard.GetValue<T>(keyName);
+
+        public void SetValue(T newValue)
+        {
+            value = newValue;
+            ValueChanged?.Invoke();
+        }
+
+        public override void SetValueObject(object newValue)
+        {
+            if (newValue is T typedValue)
+            {
+                SetValue(typedValue);
+            }
+            else
+            {
+                Debug.LogWarning($"Cannot set value of type {newValue?.GetType().Name} to Key<{typeof(T).Name}> '{keyName}'.");
+            }
+        }
+
+        public override System.Type GetValueType() => typeof(T);
+    }
+}
+`} />
+
+<Code lang="cs" title="ND_BehaviorTree/Keys/NavMeshAgentKey.cs" code={`
+using UnityEngine;
+using UnityEngine.AI;
+using ND_BehaviorTree;
+
+[CreateAssetMenu(menuName = "ND_BehaviorTree/Keys/NavMeshAgent Key", fileName = "New NavMeshAgent Key")]
+public class NavMeshAgentKey : Key<NavMeshAgent> { }
+`} />
+
+<Code lang="cs" title="ND_BehaviorTree/BlackboardOverride.cs (Snippet)" code={`
+[Serializable]
+public class OverrideDataNavMeshAgent : OverrideDataValue<NavMeshAgent> { }
+`} />

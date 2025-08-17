@@ -1,0 +1,107 @@
+---
+title: Introduction
+description: Welcome to the Behavior Tree System documentation.
+---
+import { Aside } from '@astrojs/starlight/components';
+
+<div style={{ 
+  border: '1px solid var(--sl-color-gray-5)', 
+  borderRadius: '0.5rem', 
+  padding: '1.5rem', 
+  fontSize: '1rem', 
+  lineHeight: '1.7' 
+}}>
+
+  {/* Welcome Section with GIF */}
+  <div style={{ 
+    display: 'flex', 
+    flexWrap: 'wrap', 
+    alignItems: 'center', 
+    gap: '2rem', 
+    marginBottom: '2rem' 
+  }}>
+    {/* Left side: Avatar and Text */}
+    <div style={{ 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: '1rem', 
+      flex: '1', 
+      minWidth: '320px' 
+    }}>
+      <img 
+        src="https://avatars.githubusercontent.com/u/111946313?v=4" 
+        alt="Developer Avatar" 
+        style={{ width: '64px', height: '64px', borderRadius: '50%', flexShrink: 0 }} 
+      />
+      <div>
+        <h2 style={{ margin: '0', fontSize: '1.5rem', fontWeight: 'bold' }}>Welcome to the ND_BehaviorTree Documentation</h2>
+        <p style={{ margin: '0.25rem 0 0 0', color: 'var(--sl-color-gray-2)' }}>
+          This is the central hub for everything you need to know about the system.
+        </p>
+      </div>
+    </div>
+
+    {/* ======================================= */}
+    {/* <!-- THIS IS THE GIF SECTION --> */}
+    {/* ======================================= */}
+    <div style={{ 
+      flex: '0 1 150px', 
+      textAlign: 'center',
+      margin: '0 auto'
+    }}>
+      <img 
+        src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3Z2eDRrZHpzcXU4cWc1MXY2bHJ0NjZ0ZmZtMmhjN3F6ajgycHc4aSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Cmr1OMJ2FN0B2/giphy.gif" 
+        alt="Waving Penguin GIF" 
+        style={{ maxWidth: '100%', borderRadius: '0.5rem' }}
+      />
+    </div>
+    {/* ======================================= */}
+    {/* <!-- END OF GIF SECTION --> */}
+    {/* ======================================= */}
+    
+  </div>
+
+  {/* Main Content */}
+  <p>
+    The goal of this project is to provide a robust and flexible behavior tree system for Unity, enabling developers to create complex and dynamic AI with an intuitive workflow.
+  </p>
+  <p>
+    This is a free and open-source project. For complete usage details, please review the <a href="/ND_BehaviorTreeDocumentPage/license-contribution">license file</a>.
+  </p>
+
+  <hr style={{ margin: '2rem 0', borderTop: '1px solid var(--sl-color-gray-5)', borderBottom: 'none' }} />
+
+  {/* Important Note */}
+  <Aside type="caution" title="A Quick Note">
+    This documentation was written by a single developer with significant help from AI assistants. While efforts were made for accuracy, some errors or unclear sections may exist. Your feedback is invaluable! If you spot an issue or have a suggestion, please feel free to reach out or contribute.
+  </Aside>
+
+  {/* Call to Action */}
+  <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+    <a href="./contact" style={{
+      display: 'inline-block',
+      backgroundColor: 'var(--sl-color-accent-low)',
+      color: 'var(--sl-color-accent-high)',
+      padding: '0.6rem 1.2rem',
+      borderRadius: '0.25rem',
+      textDecoration: 'none',
+      fontWeight: '500',
+      border: '1px solid var(--sl-color-gray-5)'
+    }}>
+      Contact Me
+    </a>
+    <a href="./license-contribution/#How-to-contribute" style={{
+      display: 'inline-block',
+      backgroundColor: 'var(--sl-color-gray-6)',
+      color: 'var(--sl-color-text)',
+      padding: '0.6rem 1.2rem',
+      borderRadius: '0.25rem',
+      textDecoration: 'none',
+      fontWeight: '500',
+      border: '1px solid var(--sl-color-gray-5)'
+    }}>
+      Report an Issue
+    </a>
+  </div>
+
+</div>

@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@700&display=swap');
+
+.anime-panel {
+  border: 6px solid black;
+  background: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.8);
+  border-radius: 10px;
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7)), url('https://www.transparenttextures.com/patterns/manga.png');
+}
+
+.speech-bubble {
+  background: white;
+  border: 4px solid black;
+  border-radius: 20px;
+  padding: 12px;
+  position: relative;
+  font-family: 'Comic Neue', sans-serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  max-width: 65%;
+  animation: pop-in 0.3s ease-out;
+}
+
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 12px solid transparent;
+  border-right-color: black;
+  left: -25px;
+  top: 25px;
+}
+
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-right-color: white;
+  left: -19px;
+  top: 27px;
+}
+
+.action-button {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.action-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(255, 255, 0, 0.7);
+}
+
+.sound-effect {
+  font-family: 'Bangers', sans-serif;
+  transform: rotate(-10deg);
+  text-shadow: 2px 2px 0 black, -2px -2px 0 black, 2px -2px 0 black, -2px 2px 0 black;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}

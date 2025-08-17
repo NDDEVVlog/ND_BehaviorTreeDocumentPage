@@ -117,14 +117,21 @@ export default defineConfig({
                             ]
                         },
                         {
-                            label: 'Attributes',
+                            label: 'BlackBoard Key',
                             items: [
-                                { label: 'Overview', link: '/build-in-elements/attributes/' },
-                                // Add more attribute items here as needed
-                                // Example:
-                                // { label: 'Blackboard Attribute', link: '/build-in-elements/attributes/blackboard-attribute/' },
+                                { label: 'Overview', link: '/build-in-elements/blackboard-key/' },
+                                { label: 'Key', link: '/build-in-elements/blackboard-key/key/' }
                             ]
-                        }
+                        },
+                        // {
+                        //     label: 'Attributes',
+                        //     items: [
+                        //         { label: 'Overview', link: '/build-in-elements/attributes/' },
+                        //         // Add more attribute items here as needed
+                        //         // Example:
+                        //         // { label: 'Blackboard Attribute', link: '/build-in-elements/attributes/blackboard-attribute/' },
+                        //     ]
+                        // }
                     ],
                 },
                 {
@@ -154,7 +161,7 @@ export default defineConfig({
                 {
                     label: 'Theme',
                     items: [
-                        { label: 'Overview', link: '/theme/overview/' },
+                        { label: 'Overview', link: '/theme/' },
                         { label: 'Customization', link: '/theme/customization/' },
                         { label: 'Apply Theme',link: '/theme/apply-theme/' },
                         { label: 'Moding Individual Node Theme', link: '/theme/individual-node-theme/' }
@@ -182,6 +189,8 @@ export default defineConfig({
                 './src/styles/spelltechBox.css',
                 './src/styles/panic.css',
                 './src/styles/faq.css',
+                './src/styles/manga.css',
+                './src/styles/anime.css'
             ],
 
             plugins: [

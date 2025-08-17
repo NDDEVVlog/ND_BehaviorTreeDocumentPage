@@ -1,0 +1,178 @@
+---
+title: Modding Node Themes
+---
+import { Aside } from '@astrojs/starlight/components';
+
+You've successfully applied a custom theme to the entire Behavior Tree editor! Now, let's dive deeper and explore how to customize the appearance and behavior of individual nodes. This allows for creating unique styles for different node types, like making action nodes look distinct from planner nodes, or even adding interactive elements.
+
+![Individual node theme example](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/Theme/IndivialNodeThemeExample.PNG)
+
+---
+
+<Aside>
+**Prerequisite:** Before proceeding, it's highly recommended to have some experience with Unity's **UI Toolkit**, including UXML for structure, USS for styling, and C# for behavior.
+</Aside>
+
+## How It Works: The Core Concept
+
+Customizing individual nodes involves a clear four-step process where different assets and scripts work together:
+
+1.  **Custom Node Editor Script:** You create a C# script that inherits from `ND_NodeEditor`. This script controls the specific styling and interactive behavior of your target node.
+2.  **Node Editor Config:** This is a `ScriptableObject` that acts as a mapping table. It tells the Behavior Tree which **Custom Node Editor Script** to use for a specific **Node Script** (e.g., use `PopCatEditor` for the `PopCatNode`). It also maps style names (like "Cyberpunk") to their corresponding USS Style Sheet files.
+3.  **Node Editor Config Manager:** This is a central manager that keeps track of all available `NodeEditorConfig` files in your project. The Behavior Tree editor consults this manager to find the right configuration to apply.
+
+## Step-by-Step Guide
+
+Let's walk through the process of creating a custom node style, from writing the code to configuring it in the editor.
+
+### Step 1: Create the Custom Node Editor Script
+
+The first step is to create a C# script that defines the unique look or behavior for your node. This script must be placed inside an `Editor` folder.
+
+You can modify a node in two primary ways:
+1.  **Styling with USS Classes:** Add USS classes to the node's visual element, allowing you to style it from an external `.uss` file. This is great for changing colors, borders, and fonts.
+2.  **Adding Interactive Behavior:** Directly manipulate the node's visual elements using C# to add interactive features like animations, sounds, or custom controls.
+
+#### Example A: Styling with USS (The GOAP Node)
+
+This example shows how to assign specific USS classes to `GOAPPlannerNode` and `GOAPActionNode` so they can be styled differently.
+
+**File: `ND_GOAPNodeEditor.cs`**
+```csharp
+using UnityEditor;
+using UnityEditor.Experimental.GraphView;
+using UnityEngine.UIElements;
+using UnityEngine;
+
+namespace ND_BehaviorTree.Editor
+{
+    /// <summary>
+    /// A specialized editor view for all GOAP-related nodes.
+    /// It inherits from ND_NodeEditor and adds custom styling.
+    /// </summary>
+    public class ND_GOAPNodeEditor : ND_NodeEditor
+    {
+        public ND_GOAPNodeEditor(Node node, UnityEditor.SerializedObject BTObject, GraphView graphView, string styleSheetPath)
+        : base(node, BTObject, graphView, styleSheetPath)
+        {
+            // Add a general class to all GOAP nodes
+            this.AddToClassList("goap-node");
+
+            // Add a more specific class based on the exact node type
+            if (m_Node is GOAP.GOAPPlannerNode)
+            {
+                this.AddToClassList("goap-planner-node");
+            }
+            else if (m_Node is GOAP.GOAPActionNode)
+            {
+                this.AddToClassList("goap-action-node");
+            }
+        }
+    }
+}
+```
+
+Explanation:  
+The script checks the type of the Node it's responsible for.  
+It uses this.AddToClassList() to add CSS-like class names ("goap-planner-node", "goap-action-node") to the node's main visual element.  
+You can now define styles for these classes in your USS file (e.g., `.goap-planner-node { background-color: blue; }`).  
+
+#### Example B: Adding Interactive Behavior (The PopCat Node)
+
+This advanced example demonstrates how to add an interactive icon to a node that changes appearance and plays a sound on mouseover.
+
+**File: `PopCatEditor.cs`**
+```csharp
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UIElements;
+using UnityEditor.Experimental.GraphView;
+using System.Reflection; // Required for playing audio in the editor
+
+public class PopCatEditor : ND_NodeEditor
+{
+    private Texture2D popCatOpenMouth;
+    private Texture2D popCatCloseMouth;
+    private AudioClip popSound;
+    private Image iconImage;
+
+    public PopCatEditor(Node node, SerializedObject BTObject, GraphView graphView, string styleSheetPath)
+        : base(node, BTObject, graphView, styleSheetPath)
+    {
+        // Find the icon element within the node's UXML structure
+        iconImage = this.Q<Image>("icon-image");
+        iconImage.style.display = DisplayStyle.Flex; // Ensure the icon is visible
+
+        // Load assets
+        popCatOpenMouth = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/ND_BehaviorTree/NDBT/Icons/POPCat1.png");
+        popCatCloseMouth = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/ND_BehaviorTree/NDBT/Icons/POPCat.png");
+        popSound = AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/path/to/your/pop-sound.mp3");
+
+        // Set the initial state
+        iconImage.image = popCatCloseMouth;
+
+        // Register a callback for when the mouse enters the icon
+        iconImage.RegisterCallback<MouseEnterEvent>(evt =>
+        {
+            iconImage.image = popCatOpenMouth;
+            if (popSound != null)
+            {
+                PlayAudioClip(popSound);
+            }
+        });
+
+        // Register a callback for when the mouse leaves the icon
+        iconImage.RegisterCallback<MouseLeaveEvent>(evt =>
+        {
+            iconImage.image = popCatCloseMouth;
+        });
+    }
+
+    // Helper method to play an AudioClip in the Unity Editor
+    private void PlayAudioClip(AudioClip clip)
+    {
+        // Code to play audio clip in editor using reflection...
+        // (Full implementation in your provided example)
+    }
+}
+```
+
+Explanation:  
+The constructor finds the Image element named "icon-image" within the node.  
+It loads textures and an audio clip using AssetDatabase.  
+`RegisterCallback<MouseEnterEvent>` and `RegisterCallback<MouseLeaveEvent>` are used to add logic that runs when the user hovers over the icon, creating an interactive effect.  
+
+### Step 2: Create and Configure the Node Editor Config
+
+Now that you have your custom editor script, you need to tell the Behavior Tree system when to use it. This is done with a NodeEditorConfig asset.
+
+1. **Create the Asset:** In your Project window, right-click and go to `Create > ND_BehaviorTree > Node Editor Config`.
+2. **Configure the Mappings:** Select the newly created asset to see its Inspector.
+
+Here’s how to fill it out:
+
+- **Editor Script:** Assign your main, overarching editor script here. For most custom nodes, this will be your custom script that inherits from `ND_NodeEditor`, like `ND_GOAPNodeEditor`.
+- **Custom Mappings:** This is where you link a specific runtime Node Script to its corresponding Editor Script.  
+  - Click the `+` button to add a new mapping.  
+  - **Node Script:** Drag the C# script file for your runtime node (e.g., `GOAPActionNode.cs`).  
+  - **Style Sheet String Entry:** Enter a unique name for the style you want to apply. This string links this mapping to a style sheet defined below. For example, enter `"Cyberpunk"`.  
+
+- **Node Style Sheets:** This section maps the string names from above to actual `.uss` Style Sheet assets.  
+  - Click the `+` button to add a new style sheet entry.  
+  - **Node Type:** Enter the exact same string you used in the Style Sheet String Entry field (e.g., `"Cyberpunk"`).  
+  - **Style Sheet:** Drag and drop your `.uss` file (e.g., `GOAPCyberpunkTheme.uss`) into this field.  
+
+![NodeEditorConfig](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/Theme/NodeConfigEditor.png)
+
+
+### Step 3: Register the Config with the Manager
+
+The final step is to make the system aware of your new configuration.
+
+1. **Open the Manager:** Navigate to the Unity top menu bar and select `ND_BehaviorTree > Node Config Manager`.  
+2. **Add Your Config:** The Node Editor Config Manager window will appear. Drag your `NodeEditorConfig` asset from the Project window into the **All Configs** list.  
+3. **Set Active Config (Optional):** You can set an Active Config if you want to force a specific configuration to be used, otherwise the system will search through the All Configs list to find a matching one.  
+
+Once this is done, open the Behavior Tree editor. Your custom nodes should now have their new styles and behaviors applied!
+
+![NodeEditorConfig](https://raw.githubusercontent.com/NDDEVVlog/ND_BehaviorTreeDocumentPage/main/public/images/Theme/NodeConfigManager.png)

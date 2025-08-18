@@ -1,0 +1,91 @@
+/* src/styles/global.css */
+
+/* Define your sci-fi theme colors */
+:root {
+  --sci-fi-bg: #0a0f18;          /* Deep space blue */
+  --sci-fi-border: #00d9ff;      /* Bright cyan for glows */
+  --sci-fi-text-primary: #e6f7ff; /* Off-white for readability */
+  --sci-fi-text-secondary: #8cb2c2; /* Muted cyan for subtext */
+  --sci-fi-glow: rgba(0, 217, 255, 0.5); /* The glow color */
+}
+
+.sci-fi-box {
+  background-color: var(--sci-fi-bg);
+  border: 1px solid var(--sci-fi-border);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 0 15px var(--sci-fi-glow);
+  position: relative;
+  font-family: 'Consolas', 'Menlo', 'Courier New', monospace; /* Techy font */
+
+  /* This creates the cool cut-out corners */
+  clip-path: polygon(
+    0 20px,      /* Top-left start */
+    20px 0,      /* Top-left end */
+    100% 0,      /* Top-right */
+    100% calc(100% - 20px), /* Bottom-right start */
+    calc(100% - 20px) 100%, /* Bottom-right end */
+    0 100%       /* Bottom-left */
+  );
+  transition: box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.sci-fi-box:hover {
+  box-shadow: 0 0 25px var(--sci-fi-glow);
+  transform: translateY(-2px);
+}
+
+.sci-fi-box-header {
+  border-bottom: 1px solid var(--sci-fi-border);
+  margin: -1.5rem -1.5rem 1.5rem -1.5rem; /* Stretch to edges */
+  padding: 1rem 1.5rem;
+  background: linear-gradient(90deg, rgba(0, 217, 255, 0.1), rgba(0, 217, 255, 0));
+}
+
+.sci-fi-box-header h2 {
+  color: var(--sci-fi-text-primary);
+  margin: 0;
+  font-size: 1.8em;
+  font-weight: 700;
+}
+
+.sci-fi-box-header p {
+  color: var(--sci-fi-text-secondary);
+  margin: 0.25rem 0 0;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Style the content inside the box */
+.sci-fi-box .content {
+  color: var(--sci-fi-text-primary);
+}
+
+.sci-fi-box .content h3 {
+  color: var(--sci-fi-border);
+  border-bottom: 1px solid rgba(0, 217, 255, 0.3);
+  padding-bottom: 0.5rem;
+  margin-top: 1.5rem;
+  font-size: 1.2em;
+}
+
+.sci-fi-box .content ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.sci-fi-box .content li {
+  padding-left: 1.5rem;
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.sci-fi-box .content li::before {
+  content: '>'; /* Use a classic terminal prompt symbol */
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--sci-fi-border);
+  font-weight: bold;
+}

@@ -1,0 +1,57 @@
+---
+title: Behavior Tree Change Log
+description: Changes in BehaviorTree System
+---
+
+import ChangelogBox from '../../../components/ChangelogBox.astro'; // Adjust path if needed
+import { Aside } from '@astrojs/starlight/components';
+
+
+<ChangelogBox version="Version 1.1" title="The Enhancer Update" releaseDate="[Date of Release]">
+
+### 🧠 Blackboard System
+*   **Integrated Blackboard View**: The Blackboard can now be viewed and modified directly within the Behavior Tree Graph editor for a seamless workflow.
+*   **Expanded Key Support**: Added a wider variety of key types, allowing for more complex and diverse data storage.
+*   **Scene Reference Overrides**: Users can now assign direct object references from the scene to Blackboard keys, overriding default values for specific tree instances.
+*   **Type-Safe Key Search**: The `Key` variable and `Key<T>` can now automatically find matching keys in the Blackboard based on their data type, reducing errors and setup time.
+*   **Enum & Struct Support**: Full, native support for using custom enums and structs as Blackboard key types.
+
+### 📈 Graph Editor Enhancements
+*   **Improved Debug Trace**: The visual tracing mode for debugging has been enhanced for clearer visualization of the tree's execution flow.
+*   **Node Copy & Paste**: Full support for copying and pasting single nodes or groups of nodes within the graph editor.
+*   **Quick Search Menu**: Press the `Spacebar` to instantly open the node search menu, allowing for a much faster workflow.
+*   **GameObject-to-Graph Linking**: Selecting a GameObject in the scene hierarchy now automatically opens and focuses its associated Behavior Tree graph.
+
+### 🌳 Behavior Tree & Nodes
+*   **New Utility Nodes**: A collection of new, pre-built function nodes has been added to handle common tasks and logic patterns.
+*   **Redesigned Node Inspector**: The UI for the node property window has been updated to be clearer and more intuitive.
+
+### 🎨 Theming & Modding
+*   **Custom Node Themes**: The visual appearance of nodes can now be customized via themes.
+    <Aside>
+      **Future Plans:** Full UXML support for customizing the GraphView, Search menus, and more is planned for a future release.
+    </Aside>
+*   **Per-Node UI Modding**: Advanced users can now modify the theme and UI behavior for individual node types.
+
+### 🧩 Plugins & Add-ons
+*   **New `SpellTech` Add-on:**
+    *   **Dynamic Method Hub**: A powerful new node and system for calling methods dynamically at runtime. *(Documentation coming soon)*
+    *   **Helper Script: `GetComp<T>`**: A utility script for efficiently finding components on a GameObject, its parents, or its children.
+    *   **Unity Node**: A new node for deeper integration with Unity's engine lifecycle. *(Currently in testing)*
+    *   **GOAP System Integration**: Added support for Goal-Oriented Action Planning.
+
+### 📝 Attributes
+*   **New Attribute: `RequireComponentRunner`**: Ensures the Behavior Tree runner GameObject has all required components before execution, preventing runtime errors. *(Documentation coming soon)*
+
+</ChangelogBox>
+
+<ChangelogBox version="Version 1.0" title="The Foundation" releaseDate="[Date of Release]">
+
+The initial release, establishing the core features of the ND Behavior Tree system.
+
+*   **Graph Editor**: A fully functional graph view for creating, connecting, and organizing behavior trees.
+*   **Live Debugging**: Real-time visual feedback on node states (`Success`, `Failure`, `Running`) during play mode.
+*   **Node Creation**: The ability to create, connect, and configure all fundamental node types.
+*   **Blackboard System**: A foundational data storage system for sharing information within a behavior tree.
+
+</ChangelogBox>

@@ -190,7 +190,8 @@ export default defineConfig({
                 './src/styles/panic.css',
                 './src/styles/faq.css',
                 './src/styles/manga.css',
-                './src/styles/anime.css'
+                './src/styles/anime.css',
+                './src/styles/global.css'
             ],
 
             plugins: [

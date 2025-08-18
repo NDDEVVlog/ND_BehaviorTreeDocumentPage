@@ -1,0 +1,19 @@
+---
+interface Props {
+  version: string;
+  title: string;
+  releaseDate: string;
+}
+
+const { version, title, releaseDate } = Astro.props;
+---
+
+<article class="sci-fi-box">
+  <header class="sci-fi-box-header">
+    <h2>{version}: {title}</h2>
+    <p>Release Date: {releaseDate}</p>
+  </header>
+  <div class="content">
+    <slot />
+  </div>
+</article>
